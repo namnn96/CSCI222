@@ -6,13 +6,11 @@
 	                <div class="widget wviolet">
 	                    <div ht-widget-header title="{{vm.title}}"></div>
 		                    <div class="widget-content user">
-		                        <h3>Search for a question</h3>
-		                        <form>
+		                        <h3>Search for a user</h3>
 			                    <input class="input_text" type="text" size=100%/>
 			                    <input type="radio" name="searchby" value="keyword" checked> by keyword
 			                    <input type="radio" name="searchby" value="tag"> by tag
 			                    <button type="submit" ng-click="vm.submitFunction()" class="btn btn-primary">Search</button>
-			                    </form>	
 		                    </div>
 	                    
 	                    
@@ -33,19 +31,17 @@
                         
                         <div class="widget-content text-center text-info">
          					<select class="show">
-							 	<option value="latest">Latest</option>
-							 	<option value="most_vote">Most vote</option>
-							 	<option value="unanswered">Unanswered</option>
+							 	<option value="a_z">A - Z</option>
+							 	<option value="z_a">Z - A</option>
 							 </select>               
 		                        
                         
                             <table class="table table-condensed table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Title</th>
-                                        <th>Author</th>
-                                        <th>Status</th>
-                                        <th>Vote</th>
+                                        <th>Username</th>
+                                        <th>Reputation</th>
+                                        <th>Location</th>
                                     </tr>
                                 </thead>
                                 <tbody>
