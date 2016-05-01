@@ -7,7 +7,6 @@
 	                    <div ht-widget-header title="{{vm.title}}"></div>
 		                    <div class="widget-content user">
 		                        <h3>Search for a user</h3>
-			                    <input class="input_text" type="text" size=100%/>
 			                    <input type="radio" name="searchby" value="keyword" checked> by keyword
 			                    <input type="radio" name="searchby" value="tag"> by tag
 			                    <button type="submit" ng-click="vm.submitFunction()" class="btn btn-primary">Search</button>
@@ -45,11 +44,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="lq in vm.latest">
-                                        <td>{{lq.title}}</td>
-                                        <td>{{lq.author}}</td>
-                                        <td>{{lq.status}}</td>
-                                        <td>{{lq.vote}}</td>
+                                    <tr ng-repeat="lq in vm.users">
+                                        <td>{{lq.name}}</td>
+                                        <td>{{lq.reputation}}</td>
+                                        <td>{{lq.location}}</td>
                                     </tr>
                                 </tbody>
                             </table>

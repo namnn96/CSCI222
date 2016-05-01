@@ -1,13 +1,15 @@
 /* jshint -W117, -W030 */
 describe('UserController', function() {
     var controller;
-
+    var users;
+    
     beforeEach(function() {
         bard.appModule('app.user');
-        bard.inject('$controller', '$log', '$rootScope');
+        bard.inject('$controller', '$log', '$q', '$rootScope', 'dataservice');
     });
 
     beforeEach(function () {
+    	sinon.stub(dataservice, 'getUsers').returns($q.when(users));
         controller = $controller('UserController');
         $rootScope.$apply();
     });

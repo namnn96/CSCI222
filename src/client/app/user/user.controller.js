@@ -5,16 +5,27 @@
         .module('app.user')
         .controller('UserController', UserController);
 
-    UserController.$inject = ['logger'];
+    UserController.$inject = ['$q', 'dataservice', 'logger'];
     /* @ngInject */
-    function UserController(logger) {
+    function UserController($q, dataservice, logger) {
         var vm = this;
+        vm.users = [];
         vm.title = 'User';
-
+        
         activate();
 
         function activate() {
-            logger.info('Activated User View');
+        	var promises = [getUsers()];
+            return $q.all(promises).then(function() {
+                logger.info('Activated User View');
+            });
+        }
+        
+        function getUsers() {
+            return dataservice.getUsers().then(function (data) {
+                vm.users = data;
+                return vm.users;
+            });
         }
     }
 })();
