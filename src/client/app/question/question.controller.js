@@ -5,16 +5,31 @@
         .module('app.question')
         .controller('QuestionController', QuestionController);
 
-    QuestionController.$inject = ['logger'];
+    QuestionController.$inject = ['$q', 'dataservice', 'logger'];
     /* @ngInject */
-    function QuestionController(logger) {
+    function QuestionController($q, dataservice, logger) {
         var vm = this;
+        vm.questions = [];
         vm.title = 'Question';
-
+        vm.qsearch = function() {
+        	var promises = [getQuestions()];
+        	return $q.all(promises);
+        }
+        
         activate();
 
         function activate() {
-            logger.info('Activated Question View');
+        	var promises = [getQuestions()];
+        	return $q.all(promises).then(function() {
+        		logger.info('Activated Question View');
+            });
+        }
+        
+        function getQuestions() {
+            return dataservice.getQuestions(vm.qtitle).then(function (data) {
+                vm.questions = data;
+                return vm.questions;
+            });
         }
     }
 })();

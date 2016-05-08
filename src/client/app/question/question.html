@@ -8,10 +8,10 @@
 		                    <div class="widget-content user">
 		                        <h3>Search for a question</h3>
 		                        <form>
-			                    <input class="input_text" type="text" size=100%/>
+			                    <input ng-model="vm.qtitle" class="input_text" type="text" size=100%/>
 			                    <input type="radio" name="searchby" value="keyword" checked> by keyword
 			                    <input type="radio" name="searchby" value="tag"> by tag
-			                    <button type="submit" ng-click="vm.submitFunction()" class="btn btn-primary">Search</button>
+			                    <button type="submit" ng-click="vm.qsearch()" class="btn btn-primary">Search</button>
 			                    </form>	
 		                    </div>
 	                    
@@ -44,16 +44,16 @@
                                     <tr>
                                         <th>Title</th>
                                         <th>Author</th>
-                                        <th>Status</th>
-                                        <th>Vote</th>
+                                        <th>Answers</th>
+                                        <th>Votes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="lq in vm.latest">
-                                        <td>{{lq.title}}</td>
-                                        <td>{{lq.author}}</td>
-                                        <td>{{lq.status}}</td>
-                                        <td>{{lq.vote}}</td>
+                                    <tr ng-repeat="lq in vm.questions">
+                                        <td>{{lq.Title}}</td>
+                                        <td>{{lq.OwnerUserId}}</td>
+                                        <td>{{lq.AnswerCount}}</td>
+                                        <td>{{lq.Score}}</td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -1,13 +1,15 @@
 /* jshint -W117, -W030 */
 describe('QuestionController', function() {
     var controller;
+    var questions;
 
     beforeEach(function() {
         bard.appModule('app.question');
-        bard.inject('$controller', '$log', '$rootScope');
+        bard.inject('$controller', '$log', '$q', '$rootScope', 'dataservice');
     });
 
     beforeEach(function () {
+    	sinon.stub(dataservice, 'getQuestions').returns($q.when(questions));
         controller = $controller('QuestionController');
         $rootScope.$apply();
     });

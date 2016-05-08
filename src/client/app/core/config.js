@@ -14,7 +14,8 @@
 
     var config = {
         appErrorPrefix: '[QnA Error] ',
-        appTitle: 'QnA System'
+        appTitle: 'QnA System',
+        host: 'http://localhost:8000/api'
     };
 
     core.value('config', config);

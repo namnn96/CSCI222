@@ -5,13 +5,13 @@
         .module('app.core')
         .factory('dataservice', dataservice);
 
-    dataservice.$inject = ['$http', '$q', 'exception', 'logger'];
+    dataservice.$inject = ['$http', '$q', 'exception', 'logger', 'config'];
     /* @ngInject */
-    function dataservice($http, $q, exception, logger) {
+    function dataservice($http, $q, exception, logger, config) {
         var service = {
             getPeople: getPeople,
             getMessageCount: getMessageCount,
-            getUsers: getUsers
+            getQuestions: getQuestions
         };
 
         return service;
@@ -32,8 +32,8 @@
             }
         }
         
-        function getUsers() {
-            return $http.get('http://localhost:8000/api/users')
+        function getQuestions(keyword) {
+            return $http.get(config.host + '/questions?keyword=' + (keyword ? keyword : ''))
                 .then(success)
                 .catch(fail);
 
@@ -42,7 +42,7 @@
             }
 
             function fail(e) {
-                return exception.catcher('XHR Failed for getUser')(e);
+                return exception.catcher('XHR Failed for getQuestions')(e);
             }
         }
     }

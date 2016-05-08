@@ -5,11 +5,11 @@ describe('UserController', function() {
     
     beforeEach(function() {
         bard.appModule('app.user');
-        bard.inject('$controller', '$log', '$q', '$rootScope', 'dataservice');
+        bard.inject('$controller', '$log', '$q', '$rootScope', 'userservice');
     });
 
     beforeEach(function () {
-    	sinon.stub(dataservice, 'getUsers').returns($q.when(users));
+    	sinon.stub(userservice, 'getUsers').returns($q.when(users));
         controller = $controller('UserController');
         $rootScope.$apply();
     });
