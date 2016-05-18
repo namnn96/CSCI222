@@ -5,14 +5,12 @@
         .module('app.dashboard')
         .controller('DashboardController', DashboardController);
 
-    DashboardController.$inject = ['$q', 'dataservice', 'logger', '$state', '$filter', '$window'];
+    DashboardController.$inject = ['$q', 'dataservice', 'logger', '$state', '$filter', '$window', '$rootScope'];
     /* @ngInject */
-    function DashboardController($q, dataservice, logger, $state, $filter, $window) {
+    function DashboardController($q, dataservice, logger, $state, $filter, $window, $rootScope) {
         var vm = this;
-        vm.news = {
-            title: 'QnA System',
-            description: 'Hot Towel Angular is a SPA template for Angular developers.'
-        };
+        
+        vm.today = new Date();
         vm.people = [];
         vm.title = 'Dashboard';
         
@@ -70,7 +68,12 @@
         
         function login(email, password) {
         	return dataservice.login(email, password).then(function (data) {
-                vm.loginUser = data;
+        		if (!data) {
+        			logger.error("Invalid email or password!");
+        			return;
+        		}
+        		
+        		vm.loginUser = data;
                 if (vm.loginUser.type == 1)
                 	vm.userType = "General user";
             	else if (vm.loginUser.type == 2)
@@ -78,15 +81,14 @@
         		else 
         			vm.userType = "System admin";
                 
+                $rootScope.userType = vm.userType;
+        		$rootScope.$broadcast("SuccessLogin");
+        		
                 vm.showsignin = false;
                 vm.showCurrentUser = true;
                 
                 $window.sessionStorage.setItem(1, JSON.stringify(vm.loginUser));
-                
-                $state.reload();
             });
-        	
-        	$state.transitionTo('question');
         }
         
         function signup() {
@@ -102,6 +104,8 @@
         
         function logout() {
         	$window.sessionStorage.removeItem(1);
+        	
+        	$rootScope.$broadcast("SuccessLogout");
         	
         	vm.showCurrentUser = false;
         	vm.showsignin = true;

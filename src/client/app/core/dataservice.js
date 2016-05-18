@@ -73,7 +73,8 @@
             }
 
             function fail(e) {
-                return exception.catcher('XHR Failed for login')(e);
+            	return null;
+//                return exception.catcher('XHR Failed for login')(e);
             }
         }
         

@@ -5,20 +5,35 @@
         .module('app.layout')
         .controller('SidebarController', SidebarController);
 
-    SidebarController.$inject = ['$state', 'routerHelper'];
+    SidebarController.$inject = ['$state', 'routerHelper', '$window', '$rootScope'];
     /* @ngInject */
-    function SidebarController($state, routerHelper) {
+    function SidebarController($state, routerHelper, $window, $rootScope) {
         var vm = this;
         var states = routerHelper.getStates();
         vm.isCurrent = isCurrent;
 
+        $rootScope.$on("SuccessLogin", function() {
+        	if ($rootScope.userType == "General admin" || $rootScope.userType == "System admin")
+        		$state.get("admin").settings.nav = 2;
+        	
+        	getNavRoutes();
+        });
+        
+        $rootScope.$on("SuccessLogout", function() {
+        	$state.get("admin").settings.nav = 3;
+        	
+        	getNavRoutes();
+        });
+        
         activate();
 
-        function activate() { getNavRoutes(); }
+        function activate() { 
+        	getNavRoutes(); 
+    	}
 
         function getNavRoutes() {
             vm.navRoutes = states.filter(function(r) {
-                return r.settings && r.settings.nav <= 2 && r.name;
+                return r.settings && r.settings.nav <= 2;
             }).sort(function(r1, r2) {
                 return r1.settings.nav - r2.settings.nav;
             });
