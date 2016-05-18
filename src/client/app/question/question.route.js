@@ -26,6 +26,16 @@
                         content: '<i class="fa fa-lock"></i> Question'
                     }
                 }
+            },
+            {
+                state: 'questionDetail',
+                config: {
+                    url: '/question/:id',
+                    templateUrl: 'app/question/questionDetail.html',
+                    controller: 'QuestionDetailController',
+                    controllerAs: 'vm',
+                    title: 'Question detail',
+                }
             }
         ];
     }

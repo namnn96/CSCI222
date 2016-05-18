@@ -26,6 +26,16 @@
                         content: '<i class="fa fa-lock"></i> User'
                     }
                 }
+            },
+            {
+                state: 'userDetail',
+                config: {
+                    url: '/user/:id',
+                    templateUrl: 'app/user/userDetail.html',
+                    controller: 'UserDetailController',
+                    controllerAs: 'vm',
+                    title: 'User detail'
+                }
             }
         ];
     }

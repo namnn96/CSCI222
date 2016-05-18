@@ -9,13 +9,28 @@
     /* @ngInject */
     function userservice($http, $q, exception, logger, config) {
         var service = {
-            getUsers: getUsers
+            getUsers: getUsers,
+            findUser: findUser
         };
 
         return service;
 
         function getUsers(keyword) {
             return $http.get(config.host + '/users?keyword=' + (keyword ? keyword : ''))
+                .then(success)
+                .catch(fail);
+
+            function success(response) {
+                return response.data;
+            }
+
+            function fail(e) {
+                return exception.catcher('XHR Failed for getUser')(e);
+            }
+        }
+        
+        function findUser(id) {
+        	return $http.get(config.host + '/users/' + id)
                 .then(success)
                 .catch(fail);
 

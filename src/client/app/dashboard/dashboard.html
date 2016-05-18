@@ -53,29 +53,75 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="col-md-6">
-                    <div class="widget wgreen">
-                        <div ht-widget-header title="Login"
+                    <div class="widget wgreen" ng-model="vm.signinForm" ng-if="vm.showsignin">
+                        <div ht-widget-header title="Sign in"
                              allow-collapse="true"></div>
                         <div class="widget-content text-center text-info">
-                            <small>{{vm.news.description}}</small>
-                            
                             <form>
 							  <fieldset class="form-group">
-							    <label for="formGroupName">Username</label>
-							    <input type="text" class="form-control" id="formGroupName" name="username">
+							    <label for="formGroupEmail">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email</label>
+							    <input type="text" ng-model="vm.user.email" class="form-control" id="formGroupEmail" name="email">
 							  </fieldset>
 							  <fieldset class="form-group">
-							    <label for="formGroupEmail">Password</label>
-							    <input type="password" class="form-control" id="formGroupPassword" name="password">
+							    <label for="formGroupPassword">Password</label>
+							    <input type="password" ng-model="vm.user.password" class="form-control" id="formGroupPassword" name="password">
 							  </fieldset>
-                        	  <button type="submit" ng-click="vm.submitFunction()">Submit</button>
+                        	  <button type="submit" ng-click="vm.login(vm.user.email, vm.user.password)" target="_self"><a href="http://localhost:3000">Sign in</a></button>
 							</form>
-	
-							<small>Number of people: {{vm.count}}</small>
-	                        </div>
+							<small>Not a user? <a ng-click=vm.showForm()>Sign up</a></small>
                         </div>
+                    </div>
                         
+                    <div class="widget wgreen" ng-model="vm.signupForm" ng-if="vm.showsignup">
+                        <div ht-widget-header title="Sign up"
+                             allow-collapse="true"></div>
+                        <div class="widget-content text-center text-info">
+							<form>
+							  <fieldset class="form-group">
+							    <label for="formGroupName">Username</label>
+							    <input type="text" ng-model="vm.newuser.name" class="form-control" id="formGroupName" name="username">
+							  </fieldset>
+							  <fieldset class="form-group">
+							    <label for="formGroupPassword">Password</label>
+							    <input type="password" ng-model="vm.newuser.password" class="form-control" id="formGroupPassword" name="password">
+							  </fieldset>
+							  <fieldset class="form-group">
+							    <label for="formGroupEmail">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email</label>
+							    <input type="text" ng-model="vm.newuser.email" class="form-control" id="formGroupEmail" name="email">
+							  </fieldset>
+							  <fieldset class="form-group">
+							    <label for="formGroupAge">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age</label>
+							    <input type="text" ng-model="vm.newuser.age" class="form-control" id="formGroupAge" name="age">
+							  </fieldset>
+							  <fieldset class="form-group">
+							    <label for="formGroupLocation">&nbsp;Location</label>
+							    <input type="text" ng-model="vm.newuser.location" class="form-control" id="formGroupLocation" name="location">
+							  </fieldset>
+                        	  <button type="submit" ng-click="vm.signup()">Sign up</button>
+							</form> 
+							<small>Already a user? <a ng-click=vm.showForm()>Sign in</a></small>
+						 </div>
+                   	</div>
+                   	
+     				 <div class="widget wgreen" ng-model="vm.currentDetail" ng-if="vm.showCurrentUser">
+                        <div ht-widget-header title="Your detail"
+                             allow-collapse="true"></div>
+                        <div class="widget-content text-left text-info">
+                        	Username: {{vm.loginUser.name}}<br>
+                        	Email: {{vm.loginUser.email}}<br>
+                        	Age: {{vm.loginUser.age}}<br>
+                        	Reputation: {{vm.loginUser.reputation}}<br>
+                        	Location: {{vm.loginUser.location}}<br>
+                        	Upvotes: {{vm.loginUser.upvotes}}<br>
+                        	Downvotes: {{vm.loginUser.downvotes}}<br>
+                        	Type: {{vm.userType}}<br><br>
+                        	<button ng-click="vm.showEdit()" class="btn btn-primary">Edit</button>
+                        	<button ng-click="vm.logout()" class="btn btn-danger" target="_self">Log out</button>
+    					</div>
+                   	</div>              	
+							                       
                         <div class="widget-foot">
                             <div class="clearfix"></div>
                         </div>

@@ -9,7 +9,7 @@
         'app.question',
         'app.tag',
         'app.user',
-        'app.admin'
+        'app.admin',
     ]);
 
 })();

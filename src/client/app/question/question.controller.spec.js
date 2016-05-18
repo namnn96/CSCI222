@@ -5,11 +5,11 @@ describe('QuestionController', function() {
 
     beforeEach(function() {
         bard.appModule('app.question');
-        bard.inject('$controller', '$log', '$q', '$rootScope', 'dataservice');
+        bard.inject('$controller', '$log', '$q', '$rootScope', 'questionservice');
     });
 
     beforeEach(function () {
-    	sinon.stub(dataservice, 'getQuestions').returns($q.when(questions));
+    	sinon.stub(questionservice, 'getQuestions').returns($q.when(questions));
         controller = $controller('QuestionController');
         $rootScope.$apply();
     });

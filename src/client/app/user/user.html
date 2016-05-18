@@ -9,8 +9,6 @@
 		                        <h3>Search for a user</h3>
 		                        <form>
 			                    <input ng-model="vm.uname" class="input_text" type="text" size=100%/>
-			                    <input type="radio" name="searchby" value="keyword" checked> by keyword
-			                    <input type="radio" name="searchby" value="tag"> by tag
 			                    <button type="submit" ng-click="vm.usearch()" class="btn btn-primary">Search</button>
 			                    </form>
 		                    </div>
@@ -47,10 +45,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="lq in vm.users">
-                                        <td><a ng-click=vm.viewuser(lq.name)>{{lq.name}}</a></td>
-                                        <td>{{lq.reputation}}</td>
-                                        <td>{{lq.location}}</td>
+                                    <tr ng-repeat="lu in vm.users">
+                                        <td><a ng-click="vm.viewUser(lu.id)">{{lu.name}}</a></td>
+                                        <td>{{lu.reputation}}</td>
+                                        <td>{{lu.location}}</td>
                                     </tr>
                                 </tbody>
                             </table>

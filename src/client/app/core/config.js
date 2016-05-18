@@ -16,6 +16,8 @@
         appErrorPrefix: '[QnA Error] ',
         appTitle: 'QnA System',
         host: 'http://localhost:8000/api'
+//        host: 'http://203.10.91.71:8000/api'
+//    	host: 'http://203.10.91.71:8000/api'
     };
 
     core.value('config', config);
