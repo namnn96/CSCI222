@@ -14,7 +14,8 @@
             getQuestions: getQuestions,
             findQuestion: findQuestion,
             login: login,
-            signup: signup
+            signup: signup,
+            submitEdit: submitEdit
         };
 
         return service;
@@ -80,6 +81,22 @@
         
         function signup(obj) {
         	return $http.post(config.host + '/users', obj)
+                .then(success)
+                .catch(fail);
+
+            function success(data, status, header, config) {
+            	console.log(data);
+            	
+                return data;
+            }
+
+            function fail(e) {
+                return exception.catcher('XHR Failed for signup')(e);
+            }
+        }
+        
+        function submitEdit(obj) {
+        	return $http.put(config.host + '/users/' + obj.id, obj)
                 .then(success)
                 .catch(fail);
 

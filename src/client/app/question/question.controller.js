@@ -7,9 +7,9 @@
     app.controller('QuestionController', QuestionController);
     app.controller('QuestionDetailController', QuestionDetailController);
 
-    QuestionController.$inject = ['$q', 'questionservice', 'logger', '$state'];
+    QuestionController.$inject = ['$q', 'questionservice', 'logger', '$state', '$window'];
     /* @ngInject */
-    function QuestionController($q, questionservice, logger, $state) {
+    function QuestionController($q, questionservice, logger, $state, $window) {
         var vm = this;
         
         vm.title = 'Question';
@@ -28,6 +28,7 @@
         
         vm.listing = true;
         vm.asking = false;
+        vm.askSuccessful;
         
         activate();
 
@@ -39,6 +40,11 @@
         }
         
         function getQuestions() {
+        	if (vm.asking == true) {
+        		vm.asking = false;
+        		vm.listing = true;
+        	}
+        	
             return questionservice.getQuestions(vm.qtitle).then(function (data) {
                 vm.questions = data;
                 return vm.questions;
@@ -52,6 +58,10 @@
         function qask() {
         	vm.listing = false;
         	vm.asking = true;
+        	if (vm.askSuccessful == true) {
+        		vm.newquestion = null;
+        		vm.askSuccessful = false;
+        	}
         }
         
         function backToListing() {
@@ -60,9 +70,15 @@
         }
         
         function submitQuestion() {
+        	if ($window.sessionStorage.length == 0) {
+        		logger.error("Please log in to ask a question!");
+        		return;
+        	}
+        		
+        	vm.newquestion.Post.Owner_id = JSON.parse($window.sessionStorage.getItem(1)).id;
         	vm.newquestion.Post.PostType = 1;
-        	vm.newquestion.Post.Owner_id = 1;
         	return questionservice.askQuestion(vm.newquestion).then(function (data) {
+        		vm.askSuccessful = true;
         		return data;
         	});
         }

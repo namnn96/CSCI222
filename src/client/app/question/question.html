@@ -26,7 +26,7 @@
 						<div ht-widget-header title="Ask a question" allow-collapse="true">
                         </div>                    
                         <div class="widget-content text-center text-info">
-                        	<form>
+                        	<form ng-if="!vm.askSuccessful">
                         		<fieldset>
                         			<label>Title</label>
                         			<input ng-model="vm.newquestion.Title" class="input_text" type="text" size=100%/><br>
@@ -43,6 +43,10 @@
                         		<button ng-click="vm.submitQuestion()" class="btn btn-primary">Submit</button>
                         		<button ng-click="vm.backToListing()" class="btn btn-danger">Cancel</button>
                         	</form>
+                        	<div ng-if="vm.askSuccessful">
+                        		<h3>Your question submitted successfully</h3><br>
+                        		<button ng-click="vm.backToListing()">Back</button>
+                        	</div>
                         </div>
                         
                         <div class="widget-foot">

@@ -19,11 +19,17 @@
         vm.signup = signup;
         vm.logout = logout;
         
-        // Toggle green boxes
+        // Function buttons
         vm.showForm = showForm;
+        vm.showEditForm = showEditForm;
+        vm.submitEdit = submitEdit;
+        vm.cancelEdit = cancelEdit;
+        
+        // Boolean for ng-if
         vm.showsignin = ($window.sessionStorage.length == 0) ? true : false;
         vm.showsignup = false;
         vm.showCurrentUser = ($window.sessionStorage.length == 0) ? false : true;
+        vm.showEdit = false;
         
         activate();
 
@@ -81,13 +87,14 @@
         		else 
         			vm.userType = "System admin";
                 
+                $window.sessionStorage.setItem(1, JSON.stringify(vm.loginUser));
+                
                 $rootScope.userType = vm.userType;
+                $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem(1));
         		$rootScope.$broadcast("SuccessLogin");
         		
                 vm.showsignin = false;
                 vm.showCurrentUser = true;
-                
-                $window.sessionStorage.setItem(1, JSON.stringify(vm.loginUser));
             });
         }
         
@@ -105,10 +112,28 @@
         function logout() {
         	$window.sessionStorage.removeItem(1);
         	
+        	$rootScope.userType = null;
+        	$rootScope.loginUser = null;
         	$rootScope.$broadcast("SuccessLogout");
         	
         	vm.showCurrentUser = false;
         	vm.showsignin = true;
+        }
+        
+        function showEditForm() {
+        	vm.showEdit = true;
+        }
+        
+        function cancelEdit() {
+        	vm.showEdit = false;
+        }
+        
+        function submitEdit() {
+        	return dataservice.submitEdit(vm.loginUser).then(function (data) {
+        		vm.showEdit = false;
+        		
+        		return data;
+        	});
         }
     }
 })();

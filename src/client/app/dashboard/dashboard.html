@@ -108,7 +108,7 @@
      				 <div class="widget wgreen" ng-model="vm.currentDetail" ng-if="vm.showCurrentUser">
                         <div ht-widget-header title="Your detail"
                              allow-collapse="true"></div>
-                        <div class="widget-content text-left text-info">
+                        <div class="widget-content text-left text-info" ng-if="!vm.showEdit">
                         	Username: {{vm.loginUser.name}}<br>
                         	Email: {{vm.loginUser.email}}<br>
                         	Age: {{vm.loginUser.age}}<br>
@@ -117,9 +117,35 @@
                         	Upvotes: {{vm.loginUser.upvotes}}<br>
                         	Downvotes: {{vm.loginUser.downvotes}}<br>
                         	Type: {{vm.userType}}<br><br>
-                        	<button ng-click="vm.showEdit()" class="btn btn-primary">Edit</button>
+                        	<button ng-click="vm.showEditForm()" class="btn btn-primary">Edit</button>
                         	<button ng-click="vm.logout()" class="btn btn-danger" target="_self">Log out</button>
     					</div>
+    					<div class="widget-content text-center text-info" ng-if="vm.showEdit">
+							<form>
+							  <fieldset class="form-group">
+							    <label for="formGroupName">Username</label>
+							    <input type="text" ng-model="vm.loginUser.name" class="form-control" id="formGroupName" name="username">
+							  </fieldset>
+							  <fieldset class="form-group">
+							    <label for="formGroupPassword">Password</label>
+							    <input type="password" ng-model="vm.loginUser.password" class="form-control" id="formGroupPassword" name="password">
+							  </fieldset>
+							  <fieldset class="form-group">
+							    <label for="formGroupEmail">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email</label>
+							    <input type="text" ng-model="vm.loginUser.email" class="form-control" id="formGroupEmail" name="email">
+							  </fieldset>
+							  <fieldset class="form-group">
+							    <label for="formGroupAge">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age</label>
+							    <input type="text" ng-model="vm.loginUser.age" class="form-control" id="formGroupAge" name="age">
+							  </fieldset>
+							  <fieldset class="form-group">
+							    <label for="formGroupLocation">&nbsp;Location</label>
+							    <input type="text" ng-model="vm.loginUser.location" class="form-control" id="formGroupLocation" name="location">
+							  </fieldset>
+                        	  <button type="submit" ng-click="vm.submitEdit()" class="btn btn-primary">Edit</button>
+                        	  <button type="submit" ng-click="vm.cancelEdit()" class="btn btn-danger">Cancel</button>
+							</form> 
+						 </div>
                    	</div>              	
 							                       
                         <div class="widget-foot">
