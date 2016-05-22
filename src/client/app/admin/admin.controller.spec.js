@@ -4,7 +4,7 @@ describe('AdminController', function() {
 
     beforeEach(function() {
         bard.appModule('app.admin');
-        bard.inject('$controller', '$log', '$rootScope');
+        bard.inject('$controller', '$log', 'userservice', '$rootScope');
     });
 
     beforeEach(function () {

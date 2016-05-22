@@ -74,10 +74,10 @@
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="lq in vm.questions">
-                                        <td><a ng-click="vm.viewQuestion(lq.Id)">{{lq.Title}}</a></td>
-                                        <td>{{lq.Post.Owner.name}}</td>
-                                        <td>{{lq.AnswerCount}}</td>
-                                        <td>{{lq.Post.Score}}</td>
+                                        <td><a ng-click="vm.viewQuestion(lq.Id)">{{lq.Question.Title}}</a></td>
+                                        <td>{{lq.Question.Post.Owner.name}}</td>
+                                        <td>{{lq.Question.AnswerCount}}</td>
+                                        <td>{{lq.Question.Post.Score}}</td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -37,7 +37,7 @@
         	console.log("Window: " + $window.sessionStorage.length);
         	
         	if ($window.sessionStorage.length > 0) {
-            	vm.loginUser = JSON.parse($window.sessionStorage.getItem(1));
+            	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
             	if (vm.loginUser.type == 1)
                 	vm.userType = "General user";
             	else if (vm.loginUser.type == 2)
@@ -52,16 +52,9 @@
         	else 
         		$state.get("admin").settings.nav = 2;
         	
-            var promises = [getMessageCount(), getPeople()];
+            var promises = [getPeople()];
             return $q.all(promises).then(function() {
                 logger.info('Activated Dashboard View');
-            });
-        }
-
-        function getMessageCount() {
-            return dataservice.getMessageCount().then(function (data) {
-                vm.messageCount = data;
-                return vm.messageCount;
             });
         }
 
@@ -87,10 +80,10 @@
         		else 
         			vm.userType = "System admin";
                 
-                $window.sessionStorage.setItem(1, JSON.stringify(vm.loginUser));
+                $window.sessionStorage.setItem('login', JSON.stringify(vm.loginUser));
                 
                 $rootScope.userType = vm.userType;
-                $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem(1));
+                $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
         		$rootScope.$broadcast("SuccessLogin");
         		
                 vm.showsignin = false;
@@ -100,7 +93,8 @@
         
         function signup() {
         	return dataservice.signup(vm.newuser).then(function (data) {
-        		return data;
+        		vm.showsignin = true;
+        		vm.showsignup = false;
         	});
         }
         
@@ -110,7 +104,7 @@
         }
         
         function logout() {
-        	$window.sessionStorage.removeItem(1);
+        	$window.sessionStorage.clear();
         	
         	$rootScope.userType = null;
         	$rootScope.loginUser = null;

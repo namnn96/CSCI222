@@ -5,6 +5,13 @@
         /* This helps the ng-show/ng-hide animations start at the right place. */
         /* Since Angular has this but needs to load, this gives us the class early. */
         .ng-hide { display: none!important; }
+        
+        .sortorder:after {
+		  content: '\25b2';
+		}
+		.sortorder.reverse:after {
+		  content: '\25bc';
+		}
     </style>
     <title ng-bind="title">QnA System</title>
     <meta charset="utf-8" />

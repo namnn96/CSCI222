@@ -2,7 +2,7 @@
     'use strict';
 
     var app = angular
-        .module('app.question', []);
+        .module('app.question', ['ngSanitize']);
         
     app.controller('QuestionController', QuestionController);
     app.controller('QuestionDetailController', QuestionDetailController);
@@ -75,7 +75,7 @@
         		return;
         	}
         		
-        	vm.newquestion.Post.Owner_id = JSON.parse($window.sessionStorage.getItem(1)).id;
+        	vm.newquestion.Post.Owner_id = JSON.parse($window.sessionStorage.getItem('login')).id;
         	vm.newquestion.Post.PostType = 1;
         	return questionservice.askQuestion(vm.newquestion).then(function (data) {
         		vm.askSuccessful = true;
@@ -84,9 +84,9 @@
         }
     }
     
-    QuestionDetailController.$inject = ['$q', 'questionservice', 'logger', '$state'];
+    QuestionDetailController.$inject = ['$q', 'questionservice', 'logger', '$state', '$window'];
     /* @ngInject */
-    function QuestionDetailController($q, questionservice, logger, $state) {
+    function QuestionDetailController($q, questionservice, logger, $state, $window) {
         var vm = this;
         vm.title = 'Question detail';
         vm.back = back;
@@ -97,7 +97,7 @@
         function activate() {
         	var promises = [findQuestion()];
         	return $q.all(promises).then(function() {
-        		console.log($state);
+        		//console.log($state);
         		logger.info('Activated Question View');
             });
         }
@@ -105,11 +105,14 @@
         function findQuestion() {
             return questionservice.findQuestion($state.params['id']).then(function (data) {
                 vm.question = data;
+                
+               // vm.question.Post.Body = vm.question.Post.Body ? String(vm.question.Post.Body).replace(/<[^>]+>/gm, '') : '';
                 return vm.question;
             });
         }        
         
         function gotoUser(id) {
+        	$window.sessionStorage.setItem('targetUserDetail', JSON.stringify(vm.question.Post.Owner));
         	$state.transitionTo('userDetail', {id: id});
         }
         
