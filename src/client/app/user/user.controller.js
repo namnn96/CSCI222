@@ -20,7 +20,6 @@
             return $q.all(promises);
         }
         vm.viewUser = viewUser;
-        vm.resort = resort;
         
         /************************************/
         vm.order = function(predicate) {
@@ -30,9 +29,17 @@
           };
         /***********************************/
           
+        /***********************************/
+        vm.firstpage = true;
+        vm.lastpage = false;
+        vm.next = next;
+        vm.last = last;
+        /***********************************/
+          
         activate();
 
         function activate() {
+        	vm.page = 1;
         	if ($window.sessionStorage.getItem('users')) {
             	vm.users = JSON.parse($window.sessionStorage.getItem('users'));
             	vm.order('name', true);
@@ -47,9 +54,8 @@
         }
         
         function getUsers() {
-            return userservice.getUsers(vm.uname).then(function (data) {
+            return userservice.getUsers(vm.uname, vm.page).then(function (data) {
                 vm.users = data;
-                console.log(data);
                 $window.sessionStorage.setItem('users', JSON.stringify(vm.users));
                 return vm.users;
             });
@@ -59,8 +65,16 @@
         	$state.transitionTo('userDetail', {id: id});
         }
         
-        function resort() {
-        	//$filter('orderBy')(vm.users, 'name', false);
+        function next() {
+        	vm.page++;
+        	vm.firstpage = vm.page == 1 ? true : false;
+        	return getUsers();
+        }
+        
+        function last() {
+        	vm.page--;
+        	vm.firstpage = vm.page == 1 ? true : false;
+        	return getUsers();
         }
     }
     

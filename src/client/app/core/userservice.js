@@ -16,8 +16,8 @@
 
         return service;
 
-        function getUsers(keyword) {
-            return $http.get(config.host + '/users?keyword=' + (keyword ? keyword : ''))
+        function getUsers(keyword, page) {
+            return $http.get(config.host + '/users?page=' + page + '&keyword=' + (keyword ? keyword : ''))
                 .then(success)
                 .catch(fail);
 

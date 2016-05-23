@@ -30,9 +30,22 @@
         vm.asking = false;
         vm.askSuccessful;
         
+        /***********************************/
+        vm.firstpage = true;
+        vm.lastpage = false;
+        vm.next = next;
+        vm.last = last;
+        /***********************************/
+        
         activate();
 
         function activate() {
+        	vm.page = 1;
+        	if ($window.sessionStorage.getItem('questions')) {
+            	vm.questions = JSON.parse($window.sessionStorage.getItem('questions'));
+            	return logger.info('Activated Question View');
+        	}
+        	
         	var promises = [getQuestions()];
         	return $q.all(promises).then(function() {
         		logger.info('Activated Question View');
@@ -45,8 +58,9 @@
         		vm.listing = true;
         	}
         	
-            return questionservice.getQuestions(vm.qtitle).then(function (data) {
+            return questionservice.getQuestions(vm.qtitle, vm.page).then(function (data) {
                 vm.questions = data;
+                $window.sessionStorage.setItem('questions', JSON.stringify(vm.questions));
                 return vm.questions;
             });
         }      
@@ -81,6 +95,18 @@
         		vm.askSuccessful = true;
         		return data;
         	});
+        }
+        
+        function next() {
+        	vm.page++;
+        	vm.firstpage = vm.page == 1 ? true : false;
+        	return getQuestions();
+        }
+        
+        function last() {
+        	vm.page--;
+        	vm.firstpage = vm.page == 1 ? true : false;
+        	return getQuestions();
         }
     }
     

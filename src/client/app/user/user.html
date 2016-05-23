@@ -57,6 +57,9 @@
                         <div class="widget-foot">
                         	<div class="clearfix"></div>
                     	</div>
+                    	
+                    	<button ng-click="vm.last()" ng-if="!vm.firstpage">Last</button>
+                    	<button ng-click="vm.next()" ng-if="!vm.lastpage">Next</button>
                     </div>
                 </div>
             </div>
