@@ -7,9 +7,9 @@
     app.controller('UserController', UserController);
     app.controller('UserDetailController', UserDetailController);
 
-    UserController.$inject = ['$q', 'userservice', 'logger', '$state', 'routerHelper', '$filter', '$window'];
+    UserController.$inject = ['$q', 'userservice', 'logger', '$rootScope', '$state', 'routerHelper', '$filter', '$window'];
     /* @ngInject */
-    function UserController($q, userservice, logger, $state, routerHelper, $filter, $window) {
+    function UserController($q, userservice, logger, $rootScope, $state, routerHelper, $filter, $window) {
         var vm = this;
         var states = routerHelper.getStates();
         
@@ -39,6 +39,22 @@
         activate();
 
         function activate() {
+        	if ($window.sessionStorage.getItem('login')) {
+            	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+            	if (vm.loginUser.type == 1)
+                	vm.userType = "General user";
+            	else if (vm.loginUser.type == 2)
+            		vm.userType = "General admin";
+        		else 
+        			vm.userType = "System admin";
+            	
+            	$rootScope.userType = vm.userType;
+                $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+         		$rootScope.$broadcast("SuccessLogin");
+        	}
+        	else 
+        		$state.get("admin").settings.nav = 3;
+        	
         	vm.page = 1;
         	if ($window.sessionStorage.getItem('users')) {
             	vm.users = JSON.parse($window.sessionStorage.getItem('users'));

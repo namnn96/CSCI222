@@ -30,7 +30,22 @@
 	    activate();
 	
 	    function activate() {
-//	    	vm.loginUser = JSON.parse($window.sessionStorage.getItem(1));
+	    	if ($window.sessionStorage.getItem('login')) {
+            	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+            	if (vm.loginUser.type == 1)
+                	vm.userType = "General user";
+            	else if (vm.loginUser.type == 2)
+            		vm.userType = "General admin";
+        		else 
+        			vm.userType = "System admin";
+            	
+            	$rootScope.userType = vm.userType;
+                $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+         		$rootScope.$broadcast("SuccessLogin");
+        	}
+        	else 
+        		$state.get("admin").settings.nav = 3;
+	    	
 	    	var promises = [getPending()];
         	return $q.all(promises).then(function() {
         		logger.info('Activated Admin View');

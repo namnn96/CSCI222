@@ -7,9 +7,9 @@
     app.controller('QuestionController', QuestionController);
     app.controller('QuestionDetailController', QuestionDetailController);
 
-    QuestionController.$inject = ['$q', 'questionservice', 'logger', '$state', '$window'];
+    QuestionController.$inject = ['$q', 'questionservice', 'logger', '$state', '$window', '$rootScope'];
     /* @ngInject */
-    function QuestionController($q, questionservice, logger, $state, $window) {
+    function QuestionController($q, questionservice, logger, $state, $window, $rootScope) {
         var vm = this;
         
         vm.title = 'Question';
@@ -40,6 +40,22 @@
         activate();
 
         function activate() {
+        	if ($window.sessionStorage.getItem('login')) {
+            	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+            	if (vm.loginUser.type == 1)
+                	vm.userType = "General user";
+            	else if (vm.loginUser.type == 2)
+            		vm.userType = "General admin";
+        		else 
+        			vm.userType = "System admin";
+            	
+            	$rootScope.userType = vm.userType;
+                $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+         		$rootScope.$broadcast("SuccessLogin");
+        	}
+        	else 
+        		$state.get("admin").settings.nav = 3;
+        	
         	vm.page = 1;
         	if ($window.sessionStorage.getItem('questions')) {
             	vm.questions = JSON.parse($window.sessionStorage.getItem('questions'));
@@ -121,6 +137,22 @@
         activate();
 
         function activate() {
+        	if ($window.sessionStorage.getItem('login')) {
+            	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+            	if (vm.loginUser.type == 1)
+                	vm.userType = "General user";
+            	else if (vm.loginUser.type == 2)
+            		vm.userType = "General admin";
+        		else 
+        			vm.userType = "System admin";
+            	
+            	$rootScope.userType = vm.userType;
+                $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+         		$rootScope.$broadcast("SuccessLogin");
+        	}
+        	else 
+        		$state.get("admin").settings.nav = 3;
+        	
         	var promises = [findQuestion()];
         	return $q.all(promises).then(function() {
         		//console.log($state);
@@ -131,14 +163,14 @@
         function findQuestion() {
             return questionservice.findQuestion($state.params['id']).then(function (data) {
                 vm.question = data;
-                
+                console.log(vm.question);
                // vm.question.Post.Body = vm.question.Post.Body ? String(vm.question.Post.Body).replace(/<[^>]+>/gm, '') : '';
                 return vm.question;
             });
         }        
         
         function gotoUser(id) {
-        	$window.sessionStorage.setItem('targetUserDetail', JSON.stringify(vm.question.Post.Owner));
+        	$window.sessionStorage.setItem('targetUserDetail', JSON.stringify(vm.question.Question.Post.Owner));
         	$state.transitionTo('userDetail', {id: id});
         }
         

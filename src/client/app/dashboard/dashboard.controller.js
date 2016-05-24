@@ -26,17 +26,15 @@
         vm.cancelEdit = cancelEdit;
         
         // Boolean for ng-if
-        vm.showsignin = ($window.sessionStorage.length == 0) ? true : false;
+        vm.showsignin = ($window.sessionStorage.getItem('login') == undefined) ? true : false;
         vm.showsignup = false;
-        vm.showCurrentUser = ($window.sessionStorage.length == 0) ? false : true;
+        vm.showCurrentUser = ($window.sessionStorage.getItem('login') == undefined) ? false : true;
         vm.showEdit = false;
         
         activate();
 
         function activate() {
-        	console.log("Window: " + $window.sessionStorage.length);
-        	
-        	if ($window.sessionStorage.length > 0) {
+        	if ($window.sessionStorage.getItem('login')) {
             	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
             	if (vm.loginUser.type == 1)
                 	vm.userType = "General user";
@@ -44,13 +42,13 @@
             		vm.userType = "General admin";
         		else 
         			vm.userType = "System admin";
+            	
+            	$rootScope.userType = vm.userType;
+                $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+         		$rootScope.$broadcast("SuccessLogin");
         	}
-        	
-        	vm.windowSessionLength = $window.sessionStorage.length;
-        	if (vm.windowSessionLength == 0)
-        		$state.get("admin").settings.nav = 3;
         	else 
-        		$state.get("admin").settings.nav = 2;
+        		$state.get("admin").settings.nav = 3;
         	
             var promises = [getPeople()];
             return $q.all(promises).then(function() {

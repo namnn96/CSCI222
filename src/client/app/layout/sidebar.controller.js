@@ -13,6 +13,7 @@
         vm.isCurrent = isCurrent;
 
         $rootScope.$on("SuccessLogin", function() {
+        	console.log("activate sidebar");
         	if ($rootScope.userType == "General admin" || $rootScope.userType == "System admin")
         		$state.get("admin").settings.nav = 2;
         	
