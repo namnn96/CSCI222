@@ -41,9 +41,9 @@
         function activate() {
         	if ($window.sessionStorage.getItem('login')) {
             	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
-            	if (vm.loginUser.type == 1)
+            	if (vm.loginUser.type == 0)
                 	vm.userType = "General user";
-            	else if (vm.loginUser.type == 2)
+            	else if (vm.loginUser.type == 1)
             		vm.userType = "General admin";
         		else 
         			vm.userType = "System admin";
@@ -94,9 +94,9 @@
         }
     }
     
-    UserDetailController.$inject = ['$q', 'userservice', 'logger', '$window', '$state'];
+    UserDetailController.$inject = ['$q', 'userservice', 'logger', '$window', '$rootScope', '$state'];
     /* @ngInject */
-    function UserDetailController($q, userservice, logger, $window, $state, $stateParams) {
+    function UserDetailController($q, userservice, logger, $window, $rootScope, $state, $stateParams) {
         var vm = this;
         vm.title = 'User detail';
         vm.back = back;
@@ -104,6 +104,22 @@
         activate();
 
         function activate() {
+        	if ($window.sessionStorage.getItem('login')) {
+            	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+            	if (vm.loginUser.type == 0)
+                	vm.userType = "General user";
+            	else if (vm.loginUser.type == 1)
+            		vm.userType = "General admin";
+        		else 
+        			vm.userType = "System admin";
+            	
+            	$rootScope.userType = vm.userType;
+                $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
+         		$rootScope.$broadcast("SuccessLogin");
+        	}
+        	else 
+        		$state.get("admin").settings.nav = 3;
+        	
         	var promises = [findUser()];
             return $q.all(promises).then(function() {
                 logger.info('Activated User Detail View');

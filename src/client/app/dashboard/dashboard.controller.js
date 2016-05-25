@@ -36,9 +36,9 @@
         function activate() {
         	if ($window.sessionStorage.getItem('login')) {
             	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
-            	if (vm.loginUser.type == 1)
+            	if (vm.loginUser.type == 0)
                 	vm.userType = "General user";
-            	else if (vm.loginUser.type == 2)
+            	else if (vm.loginUser.type == 1)
             		vm.userType = "General admin";
         		else 
         			vm.userType = "System admin";
@@ -71,9 +71,9 @@
         		}
         		
         		vm.loginUser = data;
-                if (vm.loginUser.type == 1)
+                if (vm.loginUser.type == 0)
                 	vm.userType = "General user";
-            	else if (vm.loginUser.type == 2)
+            	else if (vm.loginUser.type == 1)
             		vm.userType = "General admin";
         		else 
         			vm.userType = "System admin";

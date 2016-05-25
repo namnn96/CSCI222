@@ -42,9 +42,9 @@
         function activate() {
         	if ($window.sessionStorage.getItem('login')) {
             	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
-            	if (vm.loginUser.type == 1)
+            	if (vm.loginUser.type == 0)
                 	vm.userType = "General user";
-            	else if (vm.loginUser.type == 2)
+            	else if (vm.loginUser.type == 1)
             		vm.userType = "General admin";
         		else 
         			vm.userType = "System admin";
@@ -104,7 +104,12 @@
         		logger.error("Please log in to ask a question!");
         		return;
         	}
-        		
+        	
+        	if (vm.newquestion == undefined || vm.newquestion.Post.Body == "") {
+        		logger.error("Cannot post an empty question!");
+        		return;
+        	}
+        	
         	vm.newquestion.Post.Owner_id = JSON.parse($window.sessionStorage.getItem('login')).id;
         	vm.newquestion.Post.PostType = 1;
         	return questionservice.askQuestion(vm.newquestion).then(function (data) {
@@ -126,15 +131,19 @@
         }
     }
     
-    QuestionDetailController.$inject = ['$q', 'questionservice', 'commentservice', 'answerservice', 'logger', '$state', '$window', '$rootScope'];
+    QuestionDetailController.$inject = ['$q', 'questionservice', 'commentservice', 'answerservice', 'postservice', 'logger', '$state', '$window', '$rootScope'];
     /* @ngInject */
-    function QuestionDetailController($q, questionservice, commentservice, answerservice, logger, $state, $window, $rootScope) {
+    function QuestionDetailController($q, questionservice, commentservice, answerservice, postservice, logger, $state, $window, $rootScope) {
         var vm = this;
         vm.title = 'Question detail';
         
         // Navigation
         vm.back = back;
         vm.gotoUser = gotoUser;
+
+        // Question related
+        vm.editQuestion = editQuestion;
+        vm.ownQuestion = false;
         
         // Comment related
         vm.postComment = postComment;
@@ -150,15 +159,17 @@
         // Voting
         vm.upvote = upvote;
         vm.downvote = downvote;
+        vm.upclick = [];
+        vm.downclick = [];
         
         activate();
 
         function activate() {
         	if ($window.sessionStorage.getItem('login')) {
             	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
-            	if (vm.loginUser.type == 1)
+            	if (vm.loginUser.type == 0)
                 	vm.userType = "General user";
-            	else if (vm.loginUser.type == 2)
+            	else if (vm.loginUser.type == 1)
             		vm.userType = "General admin";
         		else 
         			vm.userType = "System admin";
@@ -172,17 +183,30 @@
         	
         	var promises = [findQuestion()];
         	return $q.all(promises).then(function() {
-        		//console.log($state);
+        		if (vm.loginUser.id == vm.question.Question.Post.Owner.id)
+        			vm.ownQuestion = true;
         		logger.info('Activated Question View');
             });
         }
         
+        /*******************************************************
+		Question related
+        *******************************************************/
         function findQuestion() {
             return questionservice.findQuestion($state.params['id']).then(function (data) {
                 vm.question = data;
                 return vm.question;
             });
         }        
+        
+        function editQuestion() {
+        	if (!vm.ownQuestion) {
+        		logger.error("You do not own this question");
+        		return;
+        	}
+        	else
+        		logger.info("You own this question");
+        }
         
         function gotoUser(id) {
         	$window.sessionStorage.setItem('targetUserDetail', JSON.stringify(vm.question.Question.Post.Owner));
@@ -251,13 +275,39 @@
         /*******************************************************
 		Voting related
         *******************************************************/
-        function upvote(postId) {
-        	return null;
+        function upvote(votingPost) {
+        	if ($window.sessionStorage.getItem('login') == undefined) {
+        		logger.error("Please log in to vote!");
+        		return;
+        	}
+        	
+        	if (vm.upclick[votingPost.Id] == undefined)
+        		vm.upclick[votingPost.Id] = 0;
+        	
+        	var voteValue = ((vm.upclick[votingPost.Id] % 2) == 0) ? 1 : -1;
+        	votingPost.Score = votingPost.Score + voteValue;
+        	vm.upclick[votingPost.Id]++;
+        	return postservice.updatePost(votingPost).then(function (data) {
+        		$window.sessionStorage.removeItem('questions');
+        		return data;
+        	});
         }
 
-        function downvote(postId) {
-        	return null;
+        function downvote(votingPost) {
+        	if ($window.sessionStorage.getItem('login') == undefined) {
+        		logger.error("Please log in to vote!");
+        		return;
+        	}
+        	
+        	if (vm.downclick[votingPost.Id] == undefined)
+        		vm.downclick[votingPost.Id] = 0;
+        	var voteValue = ((vm.downclick[votingPost.Id] % 2) == 0) ? -1 : 1;
+        	votingPost.Score = votingPost.Score + voteValue;
+        	vm.downclick[votingPost.Id]++;
+        	return postservice.updatePost(votingPost).then(function (data) {
+        		$window.sessionStorage.removeItem('questions');
+        		return data;
+        	});
         }
-
     }
 })();
