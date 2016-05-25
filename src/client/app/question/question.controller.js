@@ -100,7 +100,7 @@
         }
         
         function submitQuestion() {
-        	if ($window.sessionStorage.length == 0) {
+        	if ($window.sessionStorage.getItem('login') == undefined) {
         		logger.error("Please log in to ask a question!");
         		return;
         	}
@@ -126,13 +126,15 @@
         }
     }
     
-    QuestionDetailController.$inject = ['$q', 'questionservice', 'logger', '$state', '$window'];
+    QuestionDetailController.$inject = ['$q', 'questionservice', 'commentservice', 'logger', '$state', '$window', '$rootScope'];
     /* @ngInject */
-    function QuestionDetailController($q, questionservice, logger, $state, $window) {
+    function QuestionDetailController($q, questionservice, commentservice, logger, $state, $window, $rootScope) {
         var vm = this;
         vm.title = 'Question detail';
         vm.back = back;
         vm.gotoUser = gotoUser;
+        vm.postComment = postComment;
+        vm.commentbox = [];
         
         activate();
 
@@ -163,8 +165,6 @@
         function findQuestion() {
             return questionservice.findQuestion($state.params['id']).then(function (data) {
                 vm.question = data;
-                console.log(vm.question);
-               // vm.question.Post.Body = vm.question.Post.Body ? String(vm.question.Post.Body).replace(/<[^>]+>/gm, '') : '';
                 return vm.question;
             });
         }        
@@ -176,6 +176,21 @@
         
         function back() {
         	$state.transitionTo('question');
+        }
+        
+        function postComment(parentId) {
+        	if ($window.sessionStorage.getItem('login') == undefined) {
+        		logger.error("Please log in to post a comment!");
+        		return;
+        	}
+        		
+        	vm.commentbox[parentId].Post.Owner_id = JSON.parse($window.sessionStorage.getItem('login')).id;
+        	
+        	return commentservice.postComment(parentId, vm.commentbox[parentId]).then(function (data) {
+        		vm.commentbox[parentId].Post.Body = "";
+        		activate();
+        		return data;
+        	});
         }
     }
 })();
