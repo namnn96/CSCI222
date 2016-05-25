@@ -126,15 +126,30 @@
         }
     }
     
-    QuestionDetailController.$inject = ['$q', 'questionservice', 'commentservice', 'logger', '$state', '$window', '$rootScope'];
+    QuestionDetailController.$inject = ['$q', 'questionservice', 'commentservice', 'answerservice', 'logger', '$state', '$window', '$rootScope'];
     /* @ngInject */
-    function QuestionDetailController($q, questionservice, commentservice, logger, $state, $window, $rootScope) {
+    function QuestionDetailController($q, questionservice, commentservice, answerservice, logger, $state, $window, $rootScope) {
         var vm = this;
         vm.title = 'Question detail';
+        
+        // Navigation
         vm.back = back;
         vm.gotoUser = gotoUser;
+        
+        // Comment related
         vm.postComment = postComment;
         vm.commentbox = [];
+        
+        // Answer related
+        vm.isAnswerBox = false;
+        vm.successAnswer = false;
+        vm.showAnswerBox = showAnswerBox;
+        vm.postAnswer = postAnswer;
+        vm.cancelAnswer = cancelAnswer;
+        
+        // Voting
+        vm.upvote = upvote;
+        vm.downvote = downvote;
         
         activate();
 
@@ -178,19 +193,71 @@
         	$state.transitionTo('question');
         }
         
+        /*******************************************************
+		Answer related
+        *******************************************************/
+        function showAnswerBox() {
+        	vm.isAnswerBox = true;
+        	vm.successAnswer = false; 
+        }
+
+        function postAnswer(questionId) {
+        	if ($window.sessionStorage.getItem('login') == undefined) {
+        		logger.error("Please log in to post an answer!");
+        		return;
+        	}
+        	
+        	if (vm.answerbox == undefined || vm.answerbox.Post.Body == "") {
+        		logger.error("Cannot post an empty answer!");
+        		return;
+        	}
+        	
+        	vm.answerbox.Post.Owner_id = JSON.parse($window.sessionStorage.getItem('login')).id;
+        	return answerservice.postAnswer(questionId, vm.answerbox).then(function (data) {
+        		vm.answerbox.Post.Body = "";
+        		vm.isAnswerBox = false;
+            	vm.successAnswer = true;
+        		activate();
+        		return data;
+        	});
+        }
+        
+        function cancelAnswer() {
+        	vm.isAnswerBox = false;
+        }
+        
+        /*******************************************************
+		Comment related
+        *******************************************************/
         function postComment(parentId) {
         	if ($window.sessionStorage.getItem('login') == undefined) {
         		logger.error("Please log in to post a comment!");
         		return;
         	}
-        		
-        	vm.commentbox[parentId].Post.Owner_id = JSON.parse($window.sessionStorage.getItem('login')).id;
         	
+        	if (vm.commentbox[parentId] == undefined || vm.commentbox[parentId].Post.Body == "") {
+        		logger.error("Cannot post an empty comment!");
+        		return;
+        	}
+        	
+        	vm.commentbox[parentId].Post.Owner_id = JSON.parse($window.sessionStorage.getItem('login')).id;
         	return commentservice.postComment(parentId, vm.commentbox[parentId]).then(function (data) {
         		vm.commentbox[parentId].Post.Body = "";
         		activate();
         		return data;
         	});
         }
+        
+        /*******************************************************
+		Voting related
+        *******************************************************/
+        function upvote(postId) {
+        	return null;
+        }
+
+        function downvote(postId) {
+        	return null;
+        }
+
     }
 })();
