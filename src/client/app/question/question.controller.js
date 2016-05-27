@@ -11,26 +11,22 @@
     /* @ngInject */
     function QuestionController($q, questionservice, logger, $state, $window, $rootScope) {
         var vm = this;
-        
         vm.title = 'Question';
         
         // Listing questions
         vm.questions = [];
-        vm.qsearch = function() {
-        	var promises = [getQuestions()];
-        	return $q.all(promises);
-        }
+        vm.qsearch = qsearch; 
         vm.viewQuestion = viewQuestion;
         vm.qask = qask;
-
         vm.submitQuestion = submitQuestion;
-        vm.backToListing = backToListing;
         
+        // Navigation
+        vm.backToListing = backToListing;
         vm.listing = true;
         vm.asking = false;
         vm.askSuccessful;
         
-        /***********************************/
+        /***********Pagination**************/
         vm.firstpage = true;
         vm.lastpage = false;
         vm.next = next;
@@ -68,8 +64,13 @@
             });
         }
         
+        function qsearch() {
+        	var promises = [getQuestions()];
+        	return $q.all(promises);
+        }
+        
         function getQuestions() {
-        	if (vm.asking == true) {
+        	if (vm.asking) {
         		vm.asking = false;
         		vm.listing = true;
         	}
@@ -94,11 +95,6 @@
         	}
         }
         
-        function backToListing() {
-        	vm.listing = true;
-        	vm.asking = false;
-        }
-        
         function submitQuestion() {
         	if ($window.sessionStorage.getItem('login') == undefined) {
         		logger.error("Please log in to ask a question!");
@@ -118,6 +114,11 @@
         	});
         }
         
+        function backToListing() {
+        	vm.listing = true;
+        	vm.asking = false;
+        }
+        
         function next() {
         	vm.page++;
         	vm.firstpage = vm.page == 1 ? true : false;
@@ -131,6 +132,10 @@
         }
     }
     
+    
+    /****************************************************************************************************/
+    
+    
     QuestionDetailController.$inject = ['$q', 'questionservice', 'commentservice', 'answerservice', 'postservice', 'logger', '$state', '$window', '$rootScope'];
     /* @ngInject */
     function QuestionDetailController($q, questionservice, commentservice, answerservice, postservice, logger, $state, $window, $rootScope) {
@@ -140,14 +145,19 @@
         // Navigation
         vm.back = back;
         vm.gotoUser = gotoUser;
+        vm.backToNormal = backToNormal;
+        vm.normalView = true;
 
         // Question related
         vm.editQuestion = editQuestion;
         vm.ownQuestion = false;
+        vm.submitEdit = submitEdit;
+        vm.editSuccessful = false;
         
         // Comment related
         vm.postComment = postComment;
         vm.commentbox = [];
+        vm.deleteComment = deleteComment;
         
         // Answer related
         vm.isAnswerBox = false;
@@ -155,6 +165,7 @@
         vm.showAnswerBox = showAnswerBox;
         vm.postAnswer = postAnswer;
         vm.cancelAnswer = cancelAnswer;
+        vm.deleteAnswer = deleteAnswer;
         
         // Voting
         vm.upvote = upvote;
@@ -165,6 +176,8 @@
         activate();
 
         function activate() {
+        	vm.editSuccessful = false;
+        	
         	if ($window.sessionStorage.getItem('login')) {
             	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
             	if (vm.loginUser.type == 0)
@@ -204,8 +217,20 @@
         		logger.error("You do not own this question");
         		return;
         	}
-        	else
-        		logger.info("You own this question");
+        	else {
+        		vm.normalView = false;
+        	}
+        }
+        
+        function submitEdit() {
+        	vm.question.Question.Post.Body = vm.editContent;
+        	
+        	return questionservice.editQuestion(vm.question.Question).then(function (data) {
+        		vm.editSuccessful = true;
+        		return data;
+        	});
+        	
+        	console.log(vm.editContent);
         }
         
         function gotoUser(id) {
@@ -215,6 +240,10 @@
         
         function back() {
         	$state.transitionTo('question');
+        }
+        
+        function backToNormal() {
+        	vm.normalView = true;
         }
         
         /*******************************************************
@@ -250,6 +279,20 @@
         	vm.isAnswerBox = false;
         }
         
+        function deleteAnswer(anAnswer) {
+        	if (vm.loginUser.id != anAnswer.Answer.Post.Owner.id) {
+        		logger.error("You do not own this answer!");
+        		return;
+        	}
+        	else {
+	        	return postservice.deleteAnswer(anAnswer).then(function (data) {
+	        		activate();
+	        		logger.info("Answer deleted!");
+	        		return data;
+	        	});
+        	}
+        }
+        
         /*******************************************************
 		Comment related
         *******************************************************/
@@ -270,6 +313,20 @@
         		activate();
         		return data;
         	});
+        }
+        
+        function deleteComment(aComment) {
+        	if (vm.loginUser.id != aComment.Post.Owner.id) {
+        		logger.error("You do not own this comment!");
+        		return;
+        	}
+        	else {
+	        	return postservice.deleteComment(aComment).then(function (data) {
+	        		activate();
+	        		logger.info("Comment deleted!");
+	        		return data;
+	        	});
+        	}
         }
         
         /*******************************************************
