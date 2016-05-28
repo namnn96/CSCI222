@@ -109,6 +109,7 @@
         	vm.newquestion.Post.Owner_id = JSON.parse($window.sessionStorage.getItem('login')).id;
         	vm.newquestion.Post.PostType = 1;
         	return questionservice.askQuestion(vm.newquestion).then(function (data) {
+        		$window.sessionStorage.removeItem('questions');
         		vm.askSuccessful = true;
         		return data;
         	});
@@ -117,6 +118,7 @@
         function backToListing() {
         	vm.listing = true;
         	vm.asking = false;
+        	activate();
         }
         
         function next() {
@@ -136,9 +138,9 @@
     /****************************************************************************************************/
     
     
-    QuestionDetailController.$inject = ['$q', 'questionservice', 'commentservice', 'answerservice', 'postservice', 'logger', '$state', '$window', '$rootScope'];
+    QuestionDetailController.$inject = ['$q', 'questionservice', 'commentservice', 'answerservice', 'postservice', 'voteservice', 'logger', '$state', '$window', '$rootScope'];
     /* @ngInject */
-    function QuestionDetailController($q, questionservice, commentservice, answerservice, postservice, logger, $state, $window, $rootScope) {
+    function QuestionDetailController($q, questionservice, commentservice, answerservice, postservice, voteservice, logger, $state, $window, $rootScope) {
         var vm = this;
         vm.title = 'Question detail';
         
@@ -153,6 +155,7 @@
         vm.ownQuestion = false;
         vm.submitEdit = submitEdit;
         vm.editSuccessful = false;
+        vm.deleteQuestion = deleteQuestion;
         
         // Comment related
         vm.postComment = postComment;
@@ -166,18 +169,21 @@
         vm.postAnswer = postAnswer;
         vm.cancelAnswer = cancelAnswer;
         vm.deleteAnswer = deleteAnswer;
+        vm.editAnswerBox = [];
+        vm.normalAnswer = [];
+        vm.editAnswer = editAnswer;
         
         // Voting
         vm.upvote = upvote;
         vm.downvote = downvote;
-        vm.upclick = [];
-        vm.downclick = [];
+//        vm.upclick = [];
+//        vm.downclick = [];
         
         activate();
 
         function activate() {
         	vm.editSuccessful = false;
-        	
+
         	if ($window.sessionStorage.getItem('login')) {
             	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
             	if (vm.loginUser.type == 0)
@@ -233,6 +239,24 @@
         	console.log(vm.editContent);
         }
         
+        function deleteQuestion(aQuestion) {
+        	if (vm.loginUser.id != aQuestion.Post.Owner.id) {
+        		logger.error("You do not own this question!");
+        		return;
+        	}
+        	else {
+	        	return postservice.deleteQuestion(aQuestion).then(function (data) {
+	        		$window.sessionStorage.removeItem('questions');
+	        		back();
+	        		logger.info("Question deleted!");
+	        		return data;
+	        	});
+        	}
+        }
+        
+        /*******************************************************
+		Navigation
+        *******************************************************/
         function gotoUser(id) {
         	$window.sessionStorage.setItem('targetUserDetail', JSON.stringify(vm.question.Question.Post.Owner));
         	$state.transitionTo('userDetail', {id: id});
@@ -270,6 +294,7 @@
         		vm.answerbox.Post.Body = "";
         		vm.isAnswerBox = false;
             	vm.successAnswer = true;
+            	$window.sessionStorage.removeItem('questions');
         		activate();
         		return data;
         	});
@@ -291,6 +316,11 @@
 	        		return data;
 	        	});
         	}
+        }
+        
+        function editAnswer(postId) {
+        	if (vm.isEditAnswer[postId] == undefined)
+        		vm.isEditAnswer[postId] = true;
         }
         
         /*******************************************************
@@ -338,15 +368,35 @@
         		return;
         	}
         	
-        	if (vm.upclick[votingPost.Id] == undefined)
-        		vm.upclick[votingPost.Id] = 0;
-        	
-        	var voteValue = ((vm.upclick[votingPost.Id] % 2) == 0) ? 1 : -1;
-        	votingPost.Score = votingPost.Score + voteValue;
-        	vm.upclick[votingPost.Id]++;
-        	return postservice.updatePost(votingPost).then(function (data) {
-        		$window.sessionStorage.removeItem('questions');
-        		return data;
+        	return voteservice.findVote(vm.loginUser.id, votingPost.Id).then(function (data) {
+        		vm.currentVote = data;
+        		
+        		if (vm.currentVote == "No vote found") {
+        			vm.newVote = {
+        					"UserId": vm.loginUser.id,
+        					"PostId": votingPost.Id,
+        					"Value": 1
+        			}
+
+        			voteservice.addVote(vm.newVote).then(function (data) {
+        				console.log(data);
+        			});
+        			
+        			votingPost.Score = votingPost.Score + 1;
+                	return postservice.updatePost(votingPost).then(function (data) {
+                		$window.sessionStorage.removeItem('questions');
+                		return data;
+                	});
+        		} else if (vm.currentVote.Value == -1){
+        			vm.currentVote.Value = 1;
+        			vm.currentVote.Post.Score += 2;
+        			votingPost.Score += 2;
+        			
+        			return voteservice.updateVote(vm.currentVote).then(function (data) {
+        				$window.sessionStorage.removeItem('questions');
+                		return data;
+        			});
+        		}
         	});
         }
 
@@ -356,14 +406,35 @@
         		return;
         	}
         	
-        	if (vm.downclick[votingPost.Id] == undefined)
-        		vm.downclick[votingPost.Id] = 0;
-        	var voteValue = ((vm.downclick[votingPost.Id] % 2) == 0) ? -1 : 1;
-        	votingPost.Score = votingPost.Score + voteValue;
-        	vm.downclick[votingPost.Id]++;
-        	return postservice.updatePost(votingPost).then(function (data) {
-        		$window.sessionStorage.removeItem('questions');
-        		return data;
+        	return voteservice.findVote(vm.loginUser.id, votingPost.Id).then(function (data) {
+        		vm.currentVote = data;
+        		
+        		if (vm.currentVote == "No vote found") {
+        			vm.newVote = {
+        					"UserId": vm.loginUser.id,
+        					"PostId": votingPost.Id,
+        					"Value": -1
+        			}
+
+        			voteservice.addVote(vm.newVote).then(function (data) {
+        				console.log(data);
+        			});
+        			
+        			votingPost.Score = votingPost.Score - 1;
+                	return postservice.updatePost(votingPost).then(function (data) {
+                		$window.sessionStorage.removeItem('questions');
+                		return data;
+                	});
+        		} else if (vm.currentVote.Value == 1){
+        			vm.currentVote.Value = -1;
+        			vm.currentVote.Post.Score -= 2;
+        			votingPost.Score -= 2;
+        			
+        			return voteservice.updateVote(vm.currentVote).then(function (data) {
+        				$window.sessionStorage.removeItem('questions');
+                		return data;
+        			});
+        		}
         	});
         }
     }

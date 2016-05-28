@@ -5,9 +5,9 @@
         .module('app.admin')
         .controller('AdminController', AdminController);
 
-    AdminController.$inject = ['$q', '$scope', 'logger', 'userservice', 'dataservice', '$window', '$state', '$filter'];
+    AdminController.$inject = ['$q', '$scope', 'logger', 'userservice', 'dataservice', '$rootScope', '$window', '$state', '$filter'];
     /* @ngInject */
-    function AdminController($q, $scope, logger, userservice, dataservice, $window, $state, $filter) {
+    function AdminController($q, $scope, logger, userservice, dataservice, $rootScope, $window, $state, $filter) {
         var vm = this;
         vm.title = 'Admin';
 

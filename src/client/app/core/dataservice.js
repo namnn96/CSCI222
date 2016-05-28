@@ -10,7 +10,6 @@
     function dataservice($http, $q, exception, logger, config) {
         var service = {
             getPeople: getPeople,
-            getMessageCount: getMessageCount,
             getQuestions: getQuestions,
             findQuestion: findQuestion,
             login: login,
@@ -19,8 +18,6 @@
         };
 
         return service;
-
-        function getMessageCount() { return $q.when(72); }
 
         function getPeople() {
             return $http.get('/api/people')
