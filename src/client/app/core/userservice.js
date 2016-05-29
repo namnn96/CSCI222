@@ -13,7 +13,8 @@
             findUser: findUser,
             getPending: getPending,
             getAdmins: getAdmins,
-            updateUser: updateUser
+            updateUser: updateUser,
+            getReport: getReport
         };
 
         return service;
@@ -85,6 +86,20 @@
 	
 	        function fail(e) {
 	            return exception.catcher('XHR Failed for updateUser')(e);
+	        }
+        }
+        
+        function getReport() {
+        	return $http.get(config.host + '/report')
+            .then(success)
+            .catch(fail);
+
+	        function success(response) {
+	            return response.data;
+	        }
+	
+	        function fail(e) {
+	            return exception.catcher('XHR Failed for getReport')(e);
 	        }
         }
     }

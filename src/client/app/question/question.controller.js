@@ -246,8 +246,9 @@
         vm.cancelAnswer = cancelAnswer;
         vm.deleteAnswer = deleteAnswer;
         vm.editAnswer = editAnswer;
-        vm.editAnswerBox = [];
-        vm.normalAnswer = [];
+        vm.editingAnswer = false;
+        vm.editAnswerSuccessful = false;
+        vm.submitAnswerEdit = submitAnswerEdit;
         
         // Voting
         vm.upvote = upvote;
@@ -257,6 +258,7 @@
 
         function activate() {
         	vm.editSuccessful = false;
+        	vm.editAnswerSuccessful = false;
 
         	if ($window.sessionStorage.getItem('login')) {
             	vm.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
@@ -309,6 +311,7 @@
         
         function editQuestion() {
     		vm.normalView = false;
+    		vm.editingAnswer = false;
         }
         
         function submitEdit() {
@@ -404,9 +407,26 @@
         	});
         }
         
-        function editAnswer(postId) {
-        	if (vm.isEditAnswer[postId] == undefined)
-        		vm.isEditAnswer[postId] = true;
+        function editAnswer(anAnswer) {
+        	vm.normalView = false;
+        	vm.editingAnswer = true;
+        	vm.editBody = anAnswer.Post.Body;
+        	vm.answerToEdit = anAnswer;
+        }
+        
+        function submitAnswerEdit() {
+        	if (vm.editAnswerContent) {
+        		vm.answerToEdit.Post.Body = vm.editAnswerContent;
+
+				return postservice.updatePost(vm.answerToEdit.Post).then(function (data) {
+					vm.editAnswerSuccessful = true;
+					return data;
+				});
+        	}
+        	else {
+        		vm.editAnswerSuccessful = true;
+        		return;
+        	}
         }
         
         /*******************************************************
@@ -448,6 +468,11 @@
         		return;
         	}
         	
+        	if (vm.loginUser.id == votingPost.Owner.id) {
+        		logger.error("Cannot vote your post!");
+        		return;
+        	}
+        	
         	return voteservice.findVote(vm.loginUser.id, votingPost.Id).then(function (data) {
         		vm.currentVote = data;
         		
@@ -483,6 +508,11 @@
         function downvote(votingPost) {
         	if ($window.sessionStorage.getItem('login') == undefined) {
         		logger.error("Please log in to vote!");
+        		return;
+        	}
+        	
+        	if (vm.loginUser.id == votingPost.Owner.id) {
+        		logger.error("Cannot vote your post!");
         		return;
         	}
         	

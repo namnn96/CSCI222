@@ -8,6 +8,7 @@
                     	<div ng-if="vm.isAdmin">
                     		<button type="submit" class="btn btn-primary" ng-click="vm.showFlaggedUsers()">Manage Flagged Users</button>
                     		<button type="submit" class="btn btn-primary" ng-click="vm.showReputationLevels()">Manage Reputation Levels</button>
+                    		<button type="submit" class="btn btn-primary" ng-click="vm.showReport()">Generate report</button>
                     		<button type="submit" class="btn btn-success" ng-click="vm.showAdmins()" ng-if="vm.userType == 'System admin'">Manage General Admins</button>
                     	</div>
                     </div>
@@ -90,6 +91,37 @@
 	                    </table>
 	                    
 	                    <button style="margin: 0px;" type="submit" class="btn btn-primary" ng-click="vm.updateReputation()">Update</button>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="widget-foot"></div>
+                </div>
+            </div>
+            
+            <div class="row" ng-if="vm.isShowingReport">
+                <div class="widget wviolet">
+					<div ht-widget-header title="Generate report"></div>
+                    <div class="widget-content user">
+                    	<h3>Summary report</h3>
+                    	<table class="table table-condensed table-striped">
+		                    <thead>
+		                        <tr>
+		                            <th>Number of users</th>
+		                            <th>Number of questions</th>
+		                            <th>Number of tags</th>
+		                            <th>Number of answers</th>
+		                            <th>Number of comments</th>
+		                        </tr>
+		                    </thead>
+	                        <tbody>
+	                            <tr>
+	                            	<td>{{vm.report.userCount}}</td>
+	                            	<td>{{vm.report.questionCount}}</td>
+	                            	<td>{{vm.report.tagCount}}</td>
+	                            	<td>{{vm.report.answerCount}}</td>
+	                            	<td>{{vm.report.commentCount}}</td>
+	                            </tr>
+	                        </tbody>
+	                    </table>
                         <div class="clearfix"></div>
                     </div>
                     <div class="widget-foot"></div>

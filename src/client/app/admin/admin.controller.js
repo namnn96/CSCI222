@@ -22,6 +22,9 @@
 		vm.isShowingReputationLevels = false;
 		vm.demote = demote;
 		
+		vm.showReport = showReport;
+		vm.isShowingReport = false;
+		
 		vm.showMakeAnswer = showMakeAnswer;
 		vm.hideMakeAnswer = hideMakeAnswer;
 		vm.isShowingMakeAnswer = false;
@@ -85,18 +88,33 @@
             vm.isShowingFlaggedUsers = true;
 			vm.isShowingReputationLevels = false;
 			vm.isShowingAdmins = false;
+			vm.isShowingReport = false;
         }
 	
 		function showReputationLevels() {
 	        vm.isShowingFlaggedUsers = false;
 			vm.isShowingReputationLevels = true;
 			vm.isShowingAdmins = false;
+			vm.isShowingReport = false;
 	    }
 		
 		function showAdmins() {
 			vm.isShowingFlaggedUsers = false;
 			vm.isShowingReputationLevels = false;
 			vm.isShowingAdmins = true;
+			vm.isShowingReport = false;
+		}
+		
+		function showReport() {
+			vm.isShowingFlaggedUsers = false;
+			vm.isShowingReputationLevels = false;
+			vm.isShowingAdmins = false;
+			vm.isShowingReport = true;
+			
+			return userservice.getReport().then(function (data) {
+				vm.report = data;
+				return vm.report;
+			});
 		}
 		
 		function showMakeAnswer() {
