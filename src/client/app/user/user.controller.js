@@ -21,12 +21,19 @@
         }
         vm.viewUser = viewUser;
         
+        /*************************************
+        Sorting
+        *************************************/
+        vm.sortBy = "reputation";
+        vm.resort = resort;
+        
+        
         /************************************/
-        vm.order = function(predicate) {
-            vm.predicate = predicate;
-            vm.reverse = (vm.predicate === predicate) ? !vm.reverse : false;
-            vm.users = $filter('orderBy')(vm.users, predicate, vm.reverse);
-          };
+//        vm.order = function(predicate) {
+//            vm.predicate = predicate;
+//            vm.reverse = (vm.predicate === predicate) ? !vm.reverse : false;
+//            vm.users = $filter('orderBy')(vm.users, predicate, vm.reverse);
+//          };
         /***********************************/
           
         /***********************************/
@@ -55,30 +62,51 @@
         	else 
         		$state.get("admin").settings.nav = 3;
         	
-        	vm.page = 1;
-        	if ($window.sessionStorage.getItem('users')) {
-            	vm.users = JSON.parse($window.sessionStorage.getItem('users'));
-            	vm.order('name', true);
-            	return logger.info('Activated User View');
-        	}
+        	if ($window.sessionStorage.getItem('usersPage'))
+        		vm.page = JSON.parse($window.sessionStorage.getItem('usersPage'));
+        	else
+        		vm.page = 1;
+        	
+        	vm.firstpage = (vm.page == 1 || vm.page == undefined) ? true : false;
+        	
+        	if ($window.sessionStorage.getItem('usersSort'))
+        		vm.sortBy = JSON.parse($window.sessionStorage.getItem('usersSort'));
+        	
+        	if ($window.sessionStorage.getItem('uname'))
+        		vm.uname = JSON.parse($window.sessionStorage.getItem('uname'));
+//        	if ($window.sessionStorage.getItem('users')) {
+//            	vm.users = JSON.parse($window.sessionStorage.getItem('users'));
+//            	vm.order('name', true);
+//            	return logger.info('Activated User View');
+//        	}
         	
         	var promises = [getUsers()];
             return $q.all(promises).then(function() {
-            	vm.order('name', true);
+//            	vm.order('name', true);
                 logger.info('Activated User View');
             });
         }
         
         function getUsers() {
-            return userservice.getUsers(vm.uname, vm.page).then(function (data) {
+            return userservice.getUsers(vm.uname, vm.page, vm.sortBy).then(function (data) {
                 vm.users = data;
-                $window.sessionStorage.setItem('users', JSON.stringify(vm.users));
+                
+                $window.sessionStorage.setItem('usersPage', JSON.stringify(vm.page));
+                $window.sessionStorage.setItem('usersSort', JSON.stringify(vm.sortBy));
+                if (vm.uname) {
+                	$window.sessionStorage.setItem('uname', JSON.stringify(vm.uname));
+                }
+//                $window.sessionStorage.setItem('users', JSON.stringify(vm.users));
                 return vm.users;
             });
         }
         
         function viewUser(id) {
         	$state.transitionTo('userDetail', {id: id});
+        }
+        
+        function resort() {
+        	return getUsers();
         }
         
         function next() {

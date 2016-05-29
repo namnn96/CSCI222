@@ -5,12 +5,22 @@
         .module('app.tag')
         .controller('TagController', TagController);
 
-    TagController.$inject = ['logger', '$window', '$rootScope', '$state'];
+    TagController.$inject = ['$q', 'logger', 'tagservice', '$window', '$rootScope', '$state'];
     /* @ngInject */
-    function TagController(logger, $window, $rootScope, $state) {
+    function TagController($q, logger, tagservice, $window, $rootScope, $state) {
         var vm = this;
         vm.title = 'Tag';
 
+        vm.searchTag = searchTag;
+        vm.findTag = findTag;
+        
+        /***********Pagination**************/
+        vm.firstpage = true;
+        vm.lastpage = false;
+        vm.next = next;
+        vm.last = last;
+        /***********************************/
+        
         activate();
 
         function activate() {
@@ -30,7 +40,56 @@
         	else 
         		$state.get("admin").settings.nav = 3;
         	
-            logger.info('Activated Tag View');
+        	if ($window.sessionStorage.getItem('tagsPage'))
+        		vm.page = JSON.parse($window.sessionStorage.getItem('tagsPage'));
+        	else
+        		vm.page = 1;
+        	
+        	vm.firstpage = (vm.page == 1 || vm.page == undefined) ? true : false;
+//        	if ($window.sessionStorage.getItem('tags')) {
+//            	vm.tags = JSON.parse($window.sessionStorage.getItem('tags'));
+//            	return logger.info('Activated Tag View');
+//        	}
+        	
+        	var promises = [getTags()];
+        	return $q.all(promises).then(function() {
+        		logger.info('Activated Tag View');
+            });
+        }
+        
+        function searchTag() {
+        	var promises = [getTags()];
+        	return $q.all(promises);
+        }
+        
+        function getTags() {
+            return tagservice.getTags(vm.keyword, vm.page).then(function (data) {
+                vm.tags = data;
+                $window.sessionStorage.setItem('tagsPage', JSON.stringify(vm.page));
+//                $window.sessionStorage.setItem('tags', JSON.stringify(vm.tags));
+                return vm.tags;
+            });
+        }  
+        
+        function findTag(tag){
+        	var tagObj = [{
+        			"text": tag.substr(1, tag.length-2)
+        	}];
+        	
+        	$window.sessionStorage.setItem('tags', JSON.stringify(tagObj));
+        	$state.transitionTo('question');
+        }
+        
+        function next() {
+        	vm.page++;
+        	vm.firstpage = vm.page == 1 ? true : false;
+        	return getTags();
+        }
+        
+        function last() {
+        	vm.page--;
+        	vm.firstpage = vm.page == 1 ? true : false;
+        	return getTags();
         }
     }
 })();

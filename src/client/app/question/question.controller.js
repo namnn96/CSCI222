@@ -2,7 +2,7 @@
     'use strict';
 
     var app = angular
-        .module('app.question', ['ngSanitize']);
+        .module('app.question', ['ngSanitize', 'ngTagsInput']);
         
     app.controller('QuestionController', QuestionController);
     app.controller('QuestionDetailController', QuestionDetailController);
@@ -25,6 +25,13 @@
         vm.listing = true;
         vm.asking = false;
         vm.askSuccessful;
+        vm.searchByKeyword = true;
+        
+        // Toggling and sorting
+        vm.searchOption = "keyword";
+        vm.toggleSearch = toggleSearch;
+        vm.sortBy = "latest";
+        vm.resort = resort;
         
         /***********Pagination**************/
         vm.firstpage = true;
@@ -52,11 +59,28 @@
         	else 
         		$state.get("admin").settings.nav = 3;
         	
-        	vm.page = 1;
-        	if ($window.sessionStorage.getItem('questions')) {
-            	vm.questions = JSON.parse($window.sessionStorage.getItem('questions'));
-            	return logger.info('Activated Question View');
+        	if ($window.sessionStorage.getItem('page'))
+        		vm.page = JSON.parse($window.sessionStorage.getItem('page'));
+        	else
+        		vm.page = 1;
+        	
+        	vm.firstpage = (vm.page == 1 || vm.page == undefined) ? true : false;
+        	
+        	if ($window.sessionStorage.getItem('questionsSort'))
+        		vm.sortBy = JSON.parse($window.sessionStorage.getItem('questionsSort'));
+        	
+        	if ($window.sessionStorage.getItem('qtitle')) {
+        		vm.qtitle = JSON.parse($window.sessionStorage.getItem('qtitle'));
+        	} else if ($window.sessionStorage.getItem('tags')) {
+        		vm.searchByKeyword = false;
+        		vm.searchOption = "tag";
+        		vm.tags = JSON.parse($window.sessionStorage.getItem('tags'));
         	}
+        	
+//        	if ($window.sessionStorage.getItem('questions')) {
+//            	vm.questions = JSON.parse($window.sessionStorage.getItem('questions'));
+//            	return logger.info('Activated Question View');
+//        	}
         	
         	var promises = [getQuestions()];
         	return $q.all(promises).then(function() {
@@ -64,6 +88,9 @@
             });
         }
         
+        /*******************************************************
+		Question related
+        *******************************************************/
         function qsearch() {
         	var promises = [getQuestions()];
         	return $q.all(promises);
@@ -75,9 +102,31 @@
         		vm.listing = true;
         	}
         	
-            return questionservice.getQuestions(vm.qtitle, vm.page).then(function (data) {
+        	if (vm.searchOption == "tag") {
+        		if (vm.tags[0] == undefined)
+        			vm.tags = undefined;
+            	vm.qtitle = undefined;
+        	}
+        	else if (vm.searchOption == "keyword") {
+        		vm.tags = undefined;
+        	}
+        	
+        	return questionservice.getQuestions(vm.tags, vm.qtitle, vm.page, vm.sortBy).then(function (data) {
                 vm.questions = data;
-                $window.sessionStorage.setItem('questions', JSON.stringify(vm.questions));
+                
+                $window.sessionStorage.setItem('page', JSON.stringify(vm.page));
+                $window.sessionStorage.setItem('questionsSort', JSON.stringify(vm.sortBy));
+                if (vm.searchOption == "tag" && vm.tags != undefined) {
+                	$window.sessionStorage.setItem('tags', JSON.stringify(vm.tags));
+                	$window.sessionStorage.removeItem('qtitle');
+                } else if (vm.searchOption == "keyword" && vm.qtitle != undefined) {
+                	$window.sessionStorage.setItem('qtitle', JSON.stringify(vm.qtitle));
+                	$window.sessionStorage.removeItem('tags');
+                } else {
+                	$window.sessionStorage.removeItem('tags');
+                	$window.sessionStorage.removeItem('qtitle');
+                }
+//                $window.sessionStorage.setItem('questions', JSON.stringify(vm.questions));
                 return vm.questions;
             });
         }      
@@ -108,13 +157,32 @@
         	
         	vm.newquestion.Post.Owner_id = JSON.parse($window.sessionStorage.getItem('login')).id;
         	vm.newquestion.Post.PostType = 1;
+        	vm.newquestion.Tags = "";
+        	for (var i = 0; i < vm.tags.length; i++) {
+        		vm.newquestion.Tags = vm.newquestion.Tags + "<" + vm.tags[i].text + ">";
+        	}
+        	
         	return questionservice.askQuestion(vm.newquestion).then(function (data) {
-        		$window.sessionStorage.removeItem('questions');
+//        		$window.sessionStorage.removeItem('questions');
         		vm.askSuccessful = true;
         		return data;
         	});
         }
         
+        /*******************************************************
+		Toggling and sorting related
+        *******************************************************/
+        function toggleSearch() {
+        	vm.searchByKeyword = vm.searchByKeyword == true ? false : true;
+        }
+        
+        function resort() {
+        	return getQuestions();
+        }
+        
+        /*******************************************************
+		Navigation related
+        *******************************************************/
         function backToListing() {
         	vm.listing = true;
         	vm.asking = false;
@@ -214,7 +282,14 @@
         function findQuestion() {
             return questionservice.findQuestion($state.params['id']).then(function (data) {
                 vm.question = data;
-                return vm.question;
+                
+                if (vm.question.Question.Tags) {
+	                vm.tags = vm.question.Question.Tags.split("><");
+	                vm.tags[0] = vm.tags[0].substr(1);
+	                vm.tags[vm.tags.length-1] = vm.tags[vm.tags.length-1].substr(0, vm.tags[vm.tags.length-1].length-1);
+                }
+                
+	            return vm.question;
             });
         }        
         
@@ -246,7 +321,7 @@
         	}
         	else {
 	        	return postservice.deleteQuestion(aQuestion).then(function (data) {
-	        		$window.sessionStorage.removeItem('questions');
+//	        		$window.sessionStorage.removeItem('questions');
 	        		back();
 	        		logger.info("Question deleted!");
 	        		return data;
@@ -294,7 +369,7 @@
         		vm.answerbox.Post.Body = "";
         		vm.isAnswerBox = false;
             	vm.successAnswer = true;
-            	$window.sessionStorage.removeItem('questions');
+//            	$window.sessionStorage.removeItem('questions');
         		activate();
         		return data;
         	});
@@ -384,7 +459,7 @@
         			
         			votingPost.Score = votingPost.Score + 1;
                 	return postservice.updatePost(votingPost).then(function (data) {
-                		$window.sessionStorage.removeItem('questions');
+//                		$window.sessionStorage.removeItem('questions');
                 		return data;
                 	});
         		} else if (vm.currentVote.Value == -1){
@@ -393,7 +468,7 @@
         			votingPost.Score += 2;
         			
         			return voteservice.updateVote(vm.currentVote).then(function (data) {
-        				$window.sessionStorage.removeItem('questions');
+//        				$window.sessionStorage.removeItem('questions');
                 		return data;
         			});
         		}
@@ -422,7 +497,7 @@
         			
         			votingPost.Score = votingPost.Score - 1;
                 	return postservice.updatePost(votingPost).then(function (data) {
-                		$window.sessionStorage.removeItem('questions');
+//                		$window.sessionStorage.removeItem('questions');
                 		return data;
                 	});
         		} else if (vm.currentVote.Value == 1){
@@ -431,7 +506,7 @@
         			votingPost.Score -= 2;
         			
         			return voteservice.updateVote(vm.currentVote).then(function (data) {
-        				$window.sessionStorage.removeItem('questions');
+//        				$window.sessionStorage.removeItem('questions');
                 		return data;
         			});
         		}

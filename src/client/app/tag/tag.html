@@ -8,7 +8,7 @@
 		                    <div class="widget-content user">
 		                        <h3>Search for a tag</h3>
 			                    <input class="input_text" type="text" size=100%/>
-			                    <button type="submit" ng-click="vm.submitFunction()" class="btn btn-primary">Search</button>
+			                    <button type="submit" ng-click="vm.searchTag()" class="btn btn-primary">Search</button>
 		                    </div>
 	                    
 	                    
@@ -24,38 +24,27 @@
                     <div class="widget wviolet">
 						<div ht-widget-header title="View" allow-collapse="true">
                         </div>                    
-                    
-                    	
-                        
                         <div class="widget-content text-center text-info">
-         					<select class="show">
-							 	<option value="list">List</option>
-							 	<option value="grid">Grid</option>
-							 </select>               
-		                        
-                        
                             <table class="table table-condensed table-striped">
                                 <thead>
                                     <tr>
                                         <th>Tag name</th>
-                                        <th>Number of question</th>
-                                        <th>Description</th>
+                                        <th>Creation date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="lq in vm.latest">
-                                        <td>{{lq.title}}</td>
-                                        <td>{{lq.author}}</td>
-                                        <td>{{lq.status}}</td>
-                                        <td>{{lq.vote}}</td>
+                                    <tr ng-repeat="lt in vm.tags">
+                                        <td><a ng-click="vm.findTag(lt.Tag)">{{lt.Tag}}</a></td>
+                                        <td>{{lt.CreationDate}}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        
                         <div class="widget-foot">
                         	<div class="clearfix"></div>
                     	</div>
+                    	<button ng-click="vm.last()" ng-if="!vm.firstpage">Last</button>
+                    	<button ng-click="vm.next()" ng-if="!vm.lastpage">Next</button>
                     </div>
                 </div>
             </div>
