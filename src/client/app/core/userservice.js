@@ -11,7 +11,9 @@
         var service = {
             getUsers: getUsers,
             findUser: findUser,
-            getPending: getPending
+            getPending: getPending,
+            getAdmins: getAdmins,
+            updateUser: updateUser
         };
 
         return service;
@@ -45,10 +47,7 @@
         }
         
         function getPending(keyword) {
-        	if (keyword == undefined)
-        		keyword = "";
-        	
-        	return $http.get(config.host + '/pending?keyword=' + keyword)
+        	return $http.get(config.host + '/pending?keyword=' + (keyword ? keyword : ''))
             .then(success)
             .catch(fail);
 
@@ -58,6 +57,34 @@
 	
 	        function fail(e) {
 	            return exception.catcher('XHR Failed for getPending')(e);
+	        }
+        }
+        
+        function getAdmins(keyword) {
+        	return $http.get(config.host + '/admins?keyword=' + (keyword ? keyword : ''))
+            .then(success)
+            .catch(fail);
+
+	        function success(response) {
+	            return response.data;
+	        }
+	
+	        function fail(e) {
+	            return exception.catcher('XHR Failed for getAdmins')(e);
+	        }
+        }
+        
+        function updateUser(obj) {
+        	return $http.put(config.host + '/users/' + obj.id, obj)
+            .then(success)
+            .catch(fail);
+
+	        function success(data, status, header, config) {
+	            return data;
+	        }
+	
+	        function fail(e) {
+	            return exception.catcher('XHR Failed for updateUser')(e);
 	        }
         }
     }

@@ -1,13 +1,13 @@
-(function () {
+	(function () {
     'use strict';
 
     angular
         .module('app.dashboard')
         .controller('DashboardController', DashboardController);
 
-    DashboardController.$inject = ['$q', 'dataservice', 'logger', '$state', '$filter', '$window', '$rootScope'];
+    DashboardController.$inject = ['$q', 'dataservice', 'userservice', 'logger', '$state', '$filter', '$window', '$rootScope'];
     /* @ngInject */
-    function DashboardController($q, dataservice, logger, $state, $filter, $window, $rootScope) {
+    function DashboardController($q, dataservice, userservice, logger, $state, $filter, $window, $rootScope) {
         var vm = this;
         
         vm.today = new Date();
@@ -71,6 +71,12 @@
         		}
         		
         		vm.loginUser = data;
+        		
+        		if (vm.loginUser.disabled) {
+        			logger.error("Your account has been banned!");
+        			return;
+        		}
+        		
                 if (vm.loginUser.type == 0)
                 	vm.userType = "General user";
             	else if (vm.loginUser.type == 1)
@@ -79,6 +85,12 @@
         			vm.userType = "System admin";
                 
                 $window.sessionStorage.setItem('login', JSON.stringify(vm.loginUser));
+                if (!$window.sessionStorage.getItem('reputation')) {
+            		dataservice.getReputation().then(function (data) {
+            			console.log(data);
+            			$window.sessionStorage.setItem('reputation', JSON.stringify(data));
+            		}); 
+            	}
                 
                 $rootScope.userType = vm.userType;
                 $rootScope.loginUser = JSON.parse($window.sessionStorage.getItem('login'));
@@ -121,7 +133,7 @@
         }
         
         function submitEdit() {
-        	return dataservice.submitEdit(vm.loginUser).then(function (data) {
+        	return userservice.updateUser(vm.loginUser).then(function (data) {
         		vm.showEdit = false;
         		
         		return data;

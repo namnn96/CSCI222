@@ -8,96 +8,129 @@
                     	<div ng-if="vm.isAdmin">
                     		<button type="submit" class="btn btn-primary" ng-click="vm.showFlaggedUsers()">Manage Flagged Users</button>
                     		<button type="submit" class="btn btn-primary" ng-click="vm.showReputationLevels()">Manage Reputation Levels</button>
-                    	</div>
-                    	
-                    	<div ng-if="!vm.isAdmin">
-                    		<h3>You do not have permission to access these tools.</h3>
+                    		<button type="submit" class="btn btn-success" ng-click="vm.showAdmins()" ng-if="vm.userType == 'System admin'">Manage General Admins</button>
                     	</div>
                     </div>
                 </div>
-           
             </div>
             
             <div class="row" ng-if="vm.isShowingFlaggedUsers">
                 <div class="widget wviolet">
 					<div ht-widget-header title="Manage Flagged Users"></div>
                     <div class="widget-content user">
-                        <h3>Search for Users</h3>
-                    		<form>
-                    			<input ng-model="vm.pendingSearch" class="input_text" type="text" size=100%/>
-								<button type="submit" class="btn btn-primary">Search</button>
-							</form>
-							<h5>Order:</h5>
-							<select class="show">
-							 	<option value="a_z">A - Z</option>
-							 	<option value="z_a">Z - A</option>
-							 </select> 
-							
+                        <h3>Search for a user</h3>
+                   		<form>
+                   			<input ng-model="vm.pendingSearch" class="input_text" type="text" size=100% style="width: 100%; margin-bottom: 5px;"/>
+							<button style="margin: 0px;" type="submit" class="btn btn-primary">Search</button>
+						</form>
                     </div>
                     <div class="widget-foot">
-                    <table class="table table-condensed table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Username</th>
-                                        <th>Reputation</th>
-                                        <th>Location</th>
-                                        <th>Manage User</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr id="pending_{{lu.id}}" ng-repeat="lu in vm.pendingUsers" ng-if="!vm.successUnflag">
-                                        <td><a ng-click=vm.viewUser(lu.id)>{{lu.name}}</a></td>
-                                        <td>{{lu.reputation}}</td>
-                                        <td>{{lu.location}}</td>
-                                        <td>
-                                        	<button ng-click="vm.unflag(lu.id)" type="submit" class="btn btn-primary">Unflag</button>
-                                        	<button type="submit" class="btn btn-primary">Ban User</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        <div class="clearfix"></div>
+	                    <table class="table table-condensed table-striped">
+	                        <thead>
+	                            <tr>
+	                                <th>Username</th>
+	                                <th>Reputation</th>
+	                                <th>Location</th>
+	                                <th>Manage User</th>
+	                            </tr>
+	                        </thead>
+	                        <tbody>
+	                            <tr id="pending_{{lu.id}}" ng-repeat="lu in vm.pendingUsers">
+	                                <td><a ng-click=vm.viewUser(lu.id)>{{lu.name}}</a></td>
+	                                <td>{{lu.reputation}}</td>
+	                                <td>{{lu.location}}</td>
+	                                <td>
+	                                	<button ng-click="vm.unflag(lu)" type="submit" class="btn btn-success">Unflag</button>
+	                                	<button ng-click="vm.ban(lu)" type="submit" class="btn btn-danger">Ban User</button>
+	                                </td>
+	                            </tr>
+	                        </tbody>
+	                    </table>
+	                    <div class="clearfix"></div>
                     </div>
-                    
                 </div>
-           
             </div>
             
             <div class="row" ng-if="vm.isShowingReputationLevels">
                 <div class="widget wviolet">
 					<div ht-widget-header title="Manage Reputation Levels"></div>
                     <div class="widget-content user">
-
-                    </div>
-                    <div class="widget-foot">
-                    <table class="table table-condensed table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Reputation Power</th>
-                                        <th>Reputation Level</th>
-                                        <th>Submit</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                    	<td>Do something</td>
-                                    	<td><input type="text" width="8" value="Default value goes here."/></td>
-                                    	<td><button type="submit" class="btn btn-primary">Update</button></td>
-                                    </tr>
-                                    <tr>
-                                    	<td>Do something else</td>
-                                    	<td><input type="text" width="8" value="Default value goes here."/></td>
-                                    	<td><button type="submit" class="btn btn-primary">Update</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    	<h3>Update the level of reputation for each power.</h3>
+                    	
+                    	<table class="table table-condensed table-striped">
+		                    <thead>
+		                        <tr>
+		                            <th>Reputation Power</th>
+		                            <th>Reputation Level</th>
+		                            <th>Description</th>
+		                        </tr>
+		                    </thead>
+	                        <tbody>
+	                            <tr>
+	                            	<td>Delete post</td>
+	                            	<td><input class="input_text" type="text" ng-model="vm.reputation.canDelete"/></td>
+	                            	<td>From which a user can delete other users' posts.</td>
+	                            </tr>
+	                            <tr>
+	                            	<td>Edit post</td>
+	                            	<td><input class="input_text" type="text" ng-model="vm.reputation.canEdit"/></td>
+	                            	<td>From which a user can edit other users' posts.</td>
+	                            </tr>
+	                            <tr>
+	                            	<td>Add tag</td>
+	                            	<td><input class="input_text" type="text" ng-model="vm.reputation.canAddTag"/></td>
+	                            	<td>From which a user can add a tag.</td>
+	                            </tr>
+	                            <tr>
+	                            	<td>Flag question</td>
+	                            	<td><input class="input_text" type="text" ng-model="vm.reputation.canFlag"/></td>
+	                            	<td>From which a user can flag a question to be duplicated.</td>
+	                            </tr>
+	                        </tbody>
+	                    </table>
+	                    
+	                    <button style="margin: 0px;" type="submit" class="btn btn-primary" ng-click="vm.updateReputation()">Update</button>
                         <div class="clearfix"></div>
                     </div>
-                    
+                    <div class="widget-foot"></div>
                 </div>
-           
             </div>
             
+            <div class="row" ng-if="vm.isShowingAdmins">
+                <div class="widget wviolet">
+					<div ht-widget-header title="Manage General Admins"></div>
+                    <div class="widget-content user">
+                        <h3>Search for an admin</h3>
+                   		<form>
+                   			<input ng-model="vm.adminSearch" class="input_text" type="text" size=100% style="width: 100%; margin-bottom: 5px;"/>
+							<button style="margin: 0px;" type="submit" class="btn btn-primary">Search</button>
+						</form>
+                    </div>
+                    <div class="widget-foot">
+	                    <table class="table table-condensed table-striped">
+	                        <thead>
+	                            <tr>
+	                                <th>Username</th>
+	                                <th>Reputation</th>
+	                                <th>Location</th>
+	                                <th>Manage Admin</th>
+	                            </tr>
+	                        </thead>
+	                        <tbody>
+	                            <tr id="admin_{{lu.id}}" ng-repeat="lu in vm.admins">
+	                                <td><a ng-click=vm.viewUser(lu.id)>{{lu.name}}</a></td>
+	                                <td>{{lu.reputation}}</td>
+	                                <td>{{lu.location}}</td>
+	                                <td>
+	                                	<button ng-click="vm.demote(lu)" type="submit" class="btn btn-danger">Demote</button>
+	                                </td>
+	                            </tr>
+	                        </tbody>
+	                    </table>
+	                    <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
     

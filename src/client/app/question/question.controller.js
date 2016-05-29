@@ -112,6 +112,7 @@
         	}
         	
         	return questionservice.getQuestions(vm.tags, vm.qtitle, vm.page, vm.sortBy).then(function (data) {
+        		vm.lastpage = (data.length < 30) ? true : false;
                 vm.questions = data;
                 
                 $window.sessionStorage.setItem('page', JSON.stringify(vm.page));
@@ -157,9 +158,11 @@
         	
         	vm.newquestion.Post.Owner_id = JSON.parse($window.sessionStorage.getItem('login')).id;
         	vm.newquestion.Post.PostType = 1;
-        	vm.newquestion.Tags = "";
-        	for (var i = 0; i < vm.tags.length; i++) {
-        		vm.newquestion.Tags = vm.newquestion.Tags + "<" + vm.tags[i].text + ">";
+        	if (vm.tags) {
+        		vm.newquestion.Tags = "";
+            	for (var i = 0; i < vm.tags.length; i++) {
+            		vm.newquestion.Tags = vm.newquestion.Tags + "<" + vm.tags[i].text + ">";
+            	}
         	}
         	
         	return questionservice.askQuestion(vm.newquestion).then(function (data) {
@@ -212,6 +215,11 @@
         var vm = this;
         vm.title = 'Question detail';
         
+        // Privileges
+        vm.canEdit = false;
+        vm.canDelete = false;
+        vm.canFlag = false;
+        
         // Navigation
         vm.back = back;
         vm.gotoUser = gotoUser;
@@ -220,10 +228,10 @@
 
         // Question related
         vm.editQuestion = editQuestion;
-        vm.ownQuestion = false;
         vm.submitEdit = submitEdit;
         vm.editSuccessful = false;
         vm.deleteQuestion = deleteQuestion;
+        vm.acceptAnswer = acceptAnswer;
         
         // Comment related
         vm.postComment = postComment;
@@ -237,15 +245,13 @@
         vm.postAnswer = postAnswer;
         vm.cancelAnswer = cancelAnswer;
         vm.deleteAnswer = deleteAnswer;
+        vm.editAnswer = editAnswer;
         vm.editAnswerBox = [];
         vm.normalAnswer = [];
-        vm.editAnswer = editAnswer;
         
         // Voting
         vm.upvote = upvote;
         vm.downvote = downvote;
-//        vm.upclick = [];
-//        vm.downclick = [];
         
         activate();
 
@@ -270,8 +276,16 @@
         	
         	var promises = [findQuestion()];
         	return $q.all(promises).then(function() {
-        		if (vm.loginUser.id == vm.question.Question.Post.Owner.id)
-        			vm.ownQuestion = true;
+        		if ($window.sessionStorage.getItem('reputation')) {
+                	vm.reputation = JSON.parse($window.sessionStorage.getItem('reputation'));
+                	if (vm.loginUser.reputation >= vm.reputation.canDelete)
+            			vm.canDelete = true;
+            		if (vm.loginUser.reputation >= vm.reputation.canEdit)
+            			vm.canEdit = true;
+            		if (vm.loginUser.reputation >= vm.reputation.canFlag)
+            			vm.canFlag = true;
+        		}
+        		
         		logger.info('Activated Question View');
             });
         }
@@ -294,39 +308,41 @@
         }        
         
         function editQuestion() {
-        	if (!vm.ownQuestion) {
-        		logger.error("You do not own this question");
-        		return;
-        	}
-        	else {
-        		vm.normalView = false;
-        	}
+    		vm.normalView = false;
         }
         
         function submitEdit() {
-        	vm.question.Question.Post.Body = vm.editContent;
+        	if (vm.editContent)
+        		vm.question.Question.Post.Body = vm.editContent;
+        	if (vm.tags) {
+        		vm.question.Question.Tags = "";
+            	for (var i = 0; i < vm.tags.length; i++) {
+            		vm.question.Question.Tags = vm.question.Question.Tags + "<" + vm.tags[i].text + ">";
+            	}
+        	}
         	
         	return questionservice.editQuestion(vm.question.Question).then(function (data) {
         		vm.editSuccessful = true;
         		return data;
         	});
-        	
-        	console.log(vm.editContent);
         }
         
         function deleteQuestion(aQuestion) {
-        	if (vm.loginUser.id != aQuestion.Post.Owner.id) {
-        		logger.error("You do not own this question!");
-        		return;
-        	}
-        	else {
-	        	return postservice.deleteQuestion(aQuestion).then(function (data) {
+        	return postservice.deleteQuestion(aQuestion).then(function (data) {
 //	        		$window.sessionStorage.removeItem('questions');
-	        		back();
-	        		logger.info("Question deleted!");
-	        		return data;
-	        	});
-        	}
+        		back();
+        		logger.info("Question deleted!");
+        		return data;
+        	});
+        }
+        
+        function acceptAnswer(anAnswer) {
+        	vm.question.Question.AcceptedAnswer_id = anAnswer.Id;
+        	
+        	return questionservice.editQuestion(vm.question.Question).then(function (data) {
+        		activate();
+        		return data;
+        	});
         }
         
         /*******************************************************
@@ -343,6 +359,7 @@
         
         function backToNormal() {
         	vm.normalView = true;
+        	activate();
         }
         
         /*******************************************************
@@ -380,17 +397,11 @@
         }
         
         function deleteAnswer(anAnswer) {
-        	if (vm.loginUser.id != anAnswer.Answer.Post.Owner.id) {
-        		logger.error("You do not own this answer!");
-        		return;
-        	}
-        	else {
-	        	return postservice.deleteAnswer(anAnswer).then(function (data) {
-	        		activate();
-	        		logger.info("Answer deleted!");
-	        		return data;
-	        	});
-        	}
+        	return postservice.deleteAnswer(anAnswer).then(function (data) {
+        		activate();
+        		logger.info("Answer deleted!");
+        		return data;
+        	});
         }
         
         function editAnswer(postId) {
@@ -421,17 +432,11 @@
         }
         
         function deleteComment(aComment) {
-        	if (vm.loginUser.id != aComment.Post.Owner.id) {
-        		logger.error("You do not own this comment!");
-        		return;
-        	}
-        	else {
-	        	return postservice.deleteComment(aComment).then(function (data) {
-	        		activate();
-	        		logger.info("Comment deleted!");
-	        		return data;
-	        	});
-        	}
+        	return postservice.deleteComment(aComment).then(function (data) {
+        		activate();
+        		logger.info("Comment deleted!");
+        		return data;
+        	});
         }
         
         /*******************************************************

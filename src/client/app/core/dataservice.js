@@ -10,11 +10,10 @@
     function dataservice($http, $q, exception, logger, config) {
         var service = {
             getPeople: getPeople,
-            getQuestions: getQuestions,
-            findQuestion: findQuestion,
             login: login,
             signup: signup,
-            submitEdit: submitEdit
+            getReputation: getReputation,
+            updateReputation: updateReputation
         };
 
         return service;
@@ -30,34 +29,6 @@
 
             function fail(e) {
                 return exception.catcher('XHR Failed for getPeople')(e);
-            }
-        }
-        
-        function getQuestions(keyword) {
-            return $http.get(config.host + '/questions?keyword=' + (keyword ? keyword : ''))
-                .then(success)
-                .catch(fail);
-
-            function success(response) {
-                return response.data;
-            }
-
-            function fail(e) {
-                return exception.catcher('XHR Failed for getQuestions')(e);
-            }
-        }
-        
-        function findQuestion(id) {
-        	return $http.get(config.host + '/questions/' + id)
-                .then(success)
-                .catch(fail);
-
-            function success(response) {
-                return response.data;
-            }
-
-            function fail(e) {
-                return exception.catcher('XHR Failed for findQuestion')(e);
             }
         }
         
@@ -82,29 +53,43 @@
                 .catch(fail);
 
             function success(data, status, header, config) {
-            	console.log(data);
-            	
                 return data;
             }
 
             function fail(e) {
-                return exception.catcher('XHR Failed for signup')(e);
+            	logger.error("There is an existing account with this email!");
+            	return;
+                //return exception.catcher('XHR Failed for signup')(e);
             }
         }
         
-        function submitEdit(obj) {
-        	return $http.put(config.host + '/users/' + obj.id, obj)
+        function getReputation() {
+        	return $http.get(config.host + '/reputation')
+                .then(success)
+                .catch(fail);
+
+            function success(response) {
+                return response.data;
+            }
+
+            function fail(e) {
+                return exception.catcher('XHR Failed for getReputation')(e);
+            }
+        }
+        
+        function updateReputation(obj) {
+        	console.log(obj);
+        	
+        	return $http.put(config.host + '/reputation/' + obj.Id, obj)
                 .then(success)
                 .catch(fail);
 
             function success(data, status, header, config) {
-            	console.log(data);
-            	
                 return data;
             }
 
             function fail(e) {
-                return exception.catcher('XHR Failed for signup')(e);
+                return exception.catcher('XHR Failed for updateReputation')(e);
             }
         }
     }

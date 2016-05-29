@@ -127,6 +127,12 @@
     function UserDetailController($q, userservice, logger, $window, $rootScope, $state, $stateParams) {
         var vm = this;
         vm.title = 'User detail';
+        
+        // User related
+        vm.flagUser = flagUser;
+        vm.promote = promote;
+        
+        // Navigation
         vm.back = back;
         
         activate();
@@ -167,6 +173,39 @@
             });
         }
         
+        function flagUser(userToFlag) {
+        	if ($window.sessionStorage.getItem('login') == undefined) {
+        		logger.error("Please log in to flag a user!");
+        		return;
+        	}
+        	
+        	if (userToFlag.pending) {
+        		logger.error("User " + userToFlag.name + " has already been flagged!");
+        		return;
+        	}
+        	
+        	if (userToFlag.disabled) {
+        		logger.error("User " + userToFlag.name + " has already been banned!");
+        		return;
+        	}
+        	
+        	userToFlag.pending = true;
+        	return userservice.updateUser(userToFlag).then(function (data) {
+        		logger.warning("You flagged user " + userToFlag.name);
+                return data;
+            });
+        }
+        
+        function promote(userToPromote) {
+        	userToPromote.type = 1;
+        	
+        	return userservice.updateUser(userToPromote).then(function (data) {
+				logger.info("Promoted user " + userToPromote.name);
+				activate();
+        	});
+        }
+        
+        // Navigation
         function back() {
         	$state.transitionTo('user');
         }

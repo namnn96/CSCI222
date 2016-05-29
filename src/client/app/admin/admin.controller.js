@@ -16,6 +16,11 @@
 	
 		vm.showReputationLevels = showReputationLevels;
 		vm.isShowingReputationLevels = false;
+		vm.updateReputation = updateReputation;
+		
+		vm.showAdmins = showAdmins;
+		vm.isShowingReputationLevels = false;
+		vm.demote = demote;
 		
 		vm.showMakeAnswer = showMakeAnswer;
 		vm.hideMakeAnswer = hideMakeAnswer;
@@ -25,7 +30,7 @@
 		
 		vm.viewUser = viewUser;
 		vm.unflag = unflag;
-		vm.successUnflag = false;
+		vm.ban = ban;
 		
 	    activate();
 	
@@ -36,7 +41,7 @@
                 	vm.userType = "General user";
             	else if (vm.loginUser.type == 1)
             		vm.userType = "General admin";
-        		else 
+        		else
         			vm.userType = "System admin";
             	
             	$rootScope.userType = vm.userType;
@@ -46,7 +51,17 @@
         	else 
         		$state.get("admin").settings.nav = 3;
 	    	
-	    	var promises = [getPending()];
+	    	if (!$window.sessionStorage.getItem('reputation')) {
+        		dataservice.getReputation().then(function (data) {
+        			vm.reputation = data;
+        			$window.sessionStorage.setItem('reputation', JSON.stringify(vm.reputation));
+        		}); 
+        	}
+        	else {
+        		vm.reputation = JSON.parse($window.sessionStorage.getItem('reputation'));
+        	}
+	    	
+	    	var promises = [getPending(), getAdmins()];
         	return $q.all(promises).then(function() {
         		logger.info('Activated Admin View');
             });
@@ -59,15 +74,30 @@
 	    	});
 	    }
 	    
+	    function getAdmins() {
+	    	return userservice.getAdmins(vm.adminSearch).then(function (data) {
+	    		vm.admins = data;
+	    		return vm.admins;
+	    	});
+	    }
+	    
 		function showFlaggedUsers() {
             vm.isShowingFlaggedUsers = true;
 			vm.isShowingReputationLevels = false;
+			vm.isShowingAdmins = false;
         }
 	
 		function showReputationLevels() {
-	            vm.isShowingFlaggedUsers = false;
-			vm.isShowingReputationLevels = true;	
-	        }
+	        vm.isShowingFlaggedUsers = false;
+			vm.isShowingReputationLevels = true;
+			vm.isShowingAdmins = false;
+	    }
+		
+		function showAdmins() {
+			vm.isShowingFlaggedUsers = false;
+			vm.isShowingReputationLevels = false;
+			vm.isShowingAdmins = true;
+		}
 		
 		function showMakeAnswer() {
 			vm.isShowingMakeAnswer = true;
@@ -81,11 +111,38 @@
         	$state.transitionTo('userDetail', {id: id});
         }
 		
-		function unflag(id) {
-			vm.unflagUser = $filter("filter")(vm.pendingUsers, {id: id})[0];
-			vm.unflagUser.pending = false;
+		function unflag(userToUnflag) {
+			userToUnflag.pending = false;
 			
-			return dataservice.submitEdit(vm.unflagUser).then(function (data) {
+			return userservice.updateUser(userToUnflag).then(function (data) {
+				logger.info("Unflagged user " + userToUnflag.name);
+				activate();
+        	});
+		}
+		
+		function ban(userToBan) {
+			userToBan.disabled = true;
+			userToBan.pending = false;
+			
+			return userservice.updateUser(userToBan).then(function (data) {
+				logger.warning("Banned user " + userToBan.name);
+				activate();
+        	});
+		}
+		
+		function updateReputation() {
+			return dataservice.updateReputation(vm.reputation).then(function (data) {
+				logger.info("Reputation levels updated!");
+				$window.sessionStorage.removeItem("reputation");
+				activate();
+        	});
+		}
+		
+		function demote(adminToDemote) {
+			adminToDemote.type = 0;
+        	
+        	return userservice.updateUser(adminToDemote).then(function (data) {
+				logger.warning("Demoted admin " + adminToDemote.name);
 				activate();
         	});
 		}
