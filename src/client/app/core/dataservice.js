@@ -13,7 +13,9 @@
             login: login,
             signup: signup,
             getReputation: getReputation,
-            updateReputation: updateReputation
+            updateReputation: updateReputation,
+            getFeedbacks: getFeedbacks,
+            postFeedback: postFeedback
         };
 
         return service;
@@ -90,6 +92,34 @@
 
             function fail(e) {
                 return exception.catcher('XHR Failed for updateReputation')(e);
+            }
+        }
+        
+        function getFeedbacks() {
+        	return $http.get(config.host + '/feedbacks?page=' + 1)
+                .then(success)
+                .catch(fail);
+
+            function success(response) {
+                return response.data;
+            }
+
+            function fail(e) {
+                return exception.catcher('XHR Failed for getFeedbacks')(e);
+            }
+        }
+        
+        function postFeedback(obj) {
+        	return $http.post(config.host + '/feedbacks', obj)
+                .then(success)
+                .catch(fail);
+
+            function success(data, status, header, config) {
+                return data;
+            }
+
+            function fail(e) {
+                return exception.catcher('XHR Failed for postFeedback')(e);
             }
         }
     }

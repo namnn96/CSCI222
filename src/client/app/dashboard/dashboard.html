@@ -2,7 +2,7 @@
     <section class="matter">
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <ul class="today-datas">
                         <li class="blightblue">
                             <div class="pull-left"><i class="fa fa-plane"></i></div>
@@ -19,45 +19,51 @@
                             </div>
                             <div class="clearfix"></div>
                         </li>
-
                     </ul>
+                </div>
+                <div class="col-md-6">
+                <ul class="today-datas">
+                    <textarea ng-model="vm.feedback.Body" style="margin: 0px; width: 100%; height: 85px;" size=100%></textarea>
+                	<br>
+               		<button ng-click="vm.postFeedback()">Leave a feedback</button>
+                </ul>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
                     <div class="widget wviolet">
-                        <div ht-widget-header title="People"
-                             allow-collapse="true"></div>
+                        <div ht-widget-header title="Admin contact" allow-collapse="true"></div>
                         <div class="widget-content text-center text-info">
                             <table class="table table-condensed table-striped">
                                 <thead>
                                     <tr>
-                                        <th>First Name</th>
-                                        <th>Last Name</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
                                         <th>Age</th>
                                         <th>Location</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="p in vm.people">
-                                        <td>{{p.firstName}}</td>
-                                        <td>{{p.lastName}}</td>
+                                    <tr ng-repeat="p in vm.admins">
+                                        <td>{{p.name}}</td>
+                                        <td>{{p.email}}</td>
                                         <td>{{p.age}}</td>
                                         <td>{{p.location}}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
+                        
                         <div class="widget-foot">
                             <div class="clearfix"></div>
                         </div>
+                        
                     </div>
                 </div>
                 
                 <div class="col-md-6">
                     <div class="widget wgreen" ng-model="vm.signinForm" ng-if="vm.showsignin">
-                        <div ht-widget-header title="Sign in"
-                             allow-collapse="true"></div>
+                        <div ht-widget-header title="Sign in" allow-collapse="true"></div>
                         <div class="widget-content text-center text-info">
                             <form>
 							  <fieldset class="form-group">
@@ -72,11 +78,13 @@
 							</form>
 							<small>Not a user? <a ng-click=vm.showForm()>Sign up</a></small>
                         </div>
+                        <div class="widget-foot">
+                            <div class="clearfix"></div>
+                        </div>
                     </div>
                         
                     <div class="widget wgreen" ng-model="vm.signupForm" ng-if="vm.showsignup">
-                        <div ht-widget-header title="Sign up"
-                             allow-collapse="true"></div>
+                        <div ht-widget-header title="Sign up" allow-collapse="true"></div>
                         <div class="widget-content text-center text-info">
 							<form>
 							  <fieldset class="form-group">
@@ -103,11 +111,13 @@
 							</form> 
 							<small>Already a user? <a ng-click=vm.showForm()>Sign in</a></small>
 						 </div>
+						 <div class="widget-foot">
+                            <div class="clearfix"></div>
+                        </div>
                    	</div>
                    	
      				 <div class="widget wgreen" ng-model="vm.currentDetail" ng-if="vm.showCurrentUser">
-                        <div ht-widget-header title="Your detail"
-                             allow-collapse="true"></div>
+                        <div ht-widget-header title="Your detail" allow-collapse="true"></div>
                         <div class="widget-content text-left text-info" ng-if="!vm.showEdit">
                         	Username: {{vm.loginUser.name}}<br>
                         	Email: {{vm.loginUser.email}}<br>
@@ -146,11 +156,10 @@
                         	  <button type="submit" ng-click="vm.cancelEdit()" class="btn btn-danger">Cancel</button>
 							</form> 
 						 </div>
-                   	</div>              	
-							                       
-                        <div class="widget-foot">
+						 <div class="widget-foot">
                             <div class="clearfix"></div>
                         </div>
+                   	</div>              	
                     </div>
                 </div>
             </div>

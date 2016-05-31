@@ -5,11 +5,13 @@
                 <div class="widget wviolet">
                     <div ht-widget-header title="Administration Tools"></div>
                     <div class="widget-content user">
-                    	<div ng-if="vm.isAdmin">
+                    	<div>
                     		<button type="submit" class="btn btn-primary" ng-click="vm.showFlaggedUsers()">Manage Flagged Users</button>
                     		<button type="submit" class="btn btn-primary" ng-click="vm.showReputationLevels()">Manage Reputation Levels</button>
                     		<button type="submit" class="btn btn-primary" ng-click="vm.showReport()">Generate report</button>
                     		<button type="submit" class="btn btn-success" ng-click="vm.showAdmins()" ng-if="vm.userType == 'System admin'">Manage General Admins</button>
+                    		<button type="submit" class="btn btn-success" ng-click="vm.showFeedbacks()" ng-if="vm.userType == 'System admin'">Manage Feedbacks</button>
+                    		<button type="submit" class="btn btn-success" ng-click="vm.showNewTags()" ng-if="vm.userType == 'System admin'">Manage New Tag</button>
                     	</div>
                     </div>
                 </div>
@@ -22,7 +24,7 @@
                         <h3>Search for a user</h3>
                    		<form>
                    			<input ng-model="vm.pendingSearch" class="input_text" type="text" size=100% style="width: 100%; margin-bottom: 5px;"/>
-							<button style="margin: 0px;" type="submit" class="btn btn-primary">Search</button>
+							<button style="margin: 0px;" type="submit" class="btn btn-primary" ng-click="vm.searchPendingUser()">Search</button>
 						</form>
                     </div>
                     <div class="widget-foot">
@@ -159,6 +161,67 @@
 	                            </tr>
 	                        </tbody>
 	                    </table>
+	                    <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row" ng-if="vm.isShowingFeedbacks">
+                <div class="widget wviolet">
+					<div ht-widget-header title="Manage Feedbacks"></div>
+                    <div class="widget-content user">
+                        <h3>Feedbacks for the system</h3>
+                        <table class="table table-condensed table-striped">
+	                        <thead>
+	                            <tr>
+	                                <th>Feedback</th>
+	                                <th>Creation on</th>
+	                            </tr>
+	                        </thead>
+	                        <tbody>
+	                            <tr ng-repeat="f in vm.feedbacks">
+	                                <td>{{f.Body}}</td>
+	                                <td>{{f.CreationDate}}</td>
+	                            </tr>
+	                        </tbody>
+	                    </table>
+                    </div>
+                    <div class="widget-foot">
+	                    <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row" ng-if="vm.isShowingNewTags">
+                <div class="widget wviolet">
+					<div ht-widget-header title="Manage New Tag"></div>
+                    <div class="widget-content user">
+                        <h3>Search for a new tag</h3>
+                   		<form>
+                   			<input ng-model="vm.pendingTagSearch" class="input_text" type="text" size=100% style="width: 100%; margin-bottom: 5px;"/>
+							<button style="margin: 0px;" type="submit" class="btn btn-primary" ng-click="vm.searchPendingTag()">Search</button>
+						</form>
+                        <table class="table table-condensed table-striped">
+	                        <thead>
+	                            <tr>
+	                                <th>Tag</th>
+	                                <th>Created on</th>
+	                                <th>Manage New Tag</th>
+	                            </tr>
+	                        </thead>
+	                        <tbody>
+	                            <tr ng-repeat="lt in vm.pendingTags">
+	                                <td>{{lt.Tag}}</td>
+	                                <td>{{lt.CreationDate}}</td>
+	                                <td>
+	                                	<button ng-click="vm.approve(lt)" type="submit" class="btn btn-success">Approve</button>
+	                                	<button ng-click="vm.reject(lt)" type="submit" class="btn btn-danger">Reject</button>
+	                                </td>
+	                            </tr>
+	                        </tbody>
+	                    </table>
+                    </div>
+                    <div class="widget-foot">
 	                    <div class="clearfix"></div>
                     </div>
                 </div>

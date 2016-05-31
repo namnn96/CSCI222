@@ -5,12 +5,14 @@
         .module('app.admin')
         .controller('AdminController', AdminController);
 
-    AdminController.$inject = ['$q', '$scope', 'logger', 'userservice', 'dataservice', '$rootScope', '$window', '$state', '$filter'];
+    AdminController.$inject = ['$q', '$scope', 'logger', 'userservice', 'dataservice', 'tagservice', '$rootScope', '$window', '$state', '$filter'];
     /* @ngInject */
-    function AdminController($q, $scope, logger, userservice, dataservice, $rootScope, $window, $state, $filter) {
+    function AdminController($q, $scope, logger, userservice, dataservice, tagservice, $rootScope, $window, $state, $filter) {
         var vm = this;
         vm.title = 'Admin';
 
+        vm.searchPendingUser = searchPendingUser;
+        
 		vm.showFlaggedUsers = showFlaggedUsers;
 		vm.isShowingFlaggedUsers = true;
 	
@@ -25,15 +27,18 @@
 		vm.showReport = showReport;
 		vm.isShowingReport = false;
 		
-		vm.showMakeAnswer = showMakeAnswer;
-		vm.hideMakeAnswer = hideMakeAnswer;
-		vm.isShowingMakeAnswer = false;
-	
-		vm.isAdmin = true;
+		vm.showFeedbacks = showFeedbacks;
+		vm.isShowingFeedbacks = false;
 		
+		vm.showNewTags = showNewTags;
+		vm.isShowingNewTags = false;
+	
 		vm.viewUser = viewUser;
 		vm.unflag = unflag;
 		vm.ban = ban;
+		
+		vm.approve = approve;
+		vm.reject = reject;
 		
 	    activate();
 	
@@ -64,7 +69,7 @@
         		vm.reputation = JSON.parse($window.sessionStorage.getItem('reputation'));
         	}
 	    	
-	    	var promises = [getPending(), getAdmins()];
+	    	var promises = [getPending(), getAdmins(), getFeedbacks(), getPendingTags()	];
         	return $q.all(promises).then(function() {
         		logger.info('Activated Admin View');
             });
@@ -84,11 +89,37 @@
 	    	});
 	    }
 	    
+	    function getFeedbacks() {
+			return dataservice.getFeedbacks().then(function (data) {
+				vm.feedbacks = data;
+				return vm.feedbacks;
+			});
+		}
+	    
+	    function searchPendingUser() {
+        	var promises = [getPending()];
+        	return $q.all(promises);
+        }
+	    
+	    function searchPendingTag() {
+        	var promises = [getPendingTags()];
+        	return $q.all(promises);
+        }
+	    
+	    function getPendingTags() {
+	    	return tagservice.getPending(vm.pendingTagSearch).then(function(data) {
+	    		vm.pendingTags = data;
+	    		return vm.pendingTags;
+	    	});
+	    }
+	    
 		function showFlaggedUsers() {
             vm.isShowingFlaggedUsers = true;
 			vm.isShowingReputationLevels = false;
 			vm.isShowingAdmins = false;
 			vm.isShowingReport = false;
+			vm.isShowingFeedbacks = false;
+			vm.isShowingNewTags = false;
         }
 	
 		function showReputationLevels() {
@@ -96,6 +127,8 @@
 			vm.isShowingReputationLevels = true;
 			vm.isShowingAdmins = false;
 			vm.isShowingReport = false;
+			vm.isShowingFeedbacks = false;
+			vm.isShowingNewTags = false;
 	    }
 		
 		function showAdmins() {
@@ -103,6 +136,8 @@
 			vm.isShowingReputationLevels = false;
 			vm.isShowingAdmins = true;
 			vm.isShowingReport = false;
+			vm.isShowingFeedbacks = false;
+			vm.isShowingNewTags = false;
 		}
 		
 		function showReport() {
@@ -110,6 +145,8 @@
 			vm.isShowingReputationLevels = false;
 			vm.isShowingAdmins = false;
 			vm.isShowingReport = true;
+			vm.isShowingFeedbacks = false;
+			vm.isShowingNewTags = false;
 			
 			return userservice.getReport().then(function (data) {
 				vm.report = data;
@@ -117,12 +154,22 @@
 			});
 		}
 		
-		function showMakeAnswer() {
-			vm.isShowingMakeAnswer = true;
+		function showFeedbacks() {
+			vm.isShowingFlaggedUsers = false;
+			vm.isShowingReputationLevels = false;
+			vm.isShowingAdmins = false;
+			vm.isShowingReport = false;
+			vm.isShowingFeedbacks = true;
+			vm.isShowingNewTags = false;
 		}
 		
-		function hideMakeAnswer() {
-			vm.isShowingMakeAnswer = false;
+		function showNewTags() {
+			vm.isShowingFlaggedUsers = false;
+			vm.isShowingReputationLevels = false;
+			vm.isShowingAdmins = false;
+			vm.isShowingReport = false;
+			vm.isShowingFeedbacks = false;
+			vm.isShowingNewTags = true;
 		}
 		
 		function viewUser(id) {
@@ -161,6 +208,22 @@
         	
         	return userservice.updateUser(adminToDemote).then(function (data) {
 				logger.warning("Demoted admin " + adminToDemote.name);
+				activate();
+        	});
+		}
+		
+		function approve(tagToApprove) {
+			tagToApprove.Pending = false;
+			
+			return tagservice.updateTag(tagToApprove).then(function (data) {
+				logger.info("Approved tag " + tagToApprove.Tag);
+				activate();
+        	});
+		}
+		
+		function reject(tagToReject) {
+			return tagservice.deleteTag(tagToReject).then(function (data) {
+				logger.warning("Reject tag " + tagToReject.Tag);
 				activate();
         	});
 		}

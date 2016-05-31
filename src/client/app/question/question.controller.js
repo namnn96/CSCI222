@@ -225,6 +225,8 @@
         vm.gotoUser = gotoUser;
         vm.backToNormal = backToNormal;
         vm.normalView = true;
+        vm.toggleFlag = toggleFlag;
+        vm.gotoQuestion = gotoQuestion;
 
         // Question related
         vm.editQuestion = editQuestion;
@@ -232,6 +234,8 @@
         vm.editSuccessful = false;
         vm.deleteQuestion = deleteQuestion;
         vm.acceptAnswer = acceptAnswer;
+        vm.isShowingOriginal = false;
+        vm.flagQuestion = flagQuestion;
         
         // Comment related
         vm.postComment = postComment;
@@ -298,7 +302,7 @@
         function findQuestion() {
             return questionservice.findQuestion($state.params['id']).then(function (data) {
                 vm.question = data;
-                
+            	
                 if (vm.question.Question.Tags) {
 	                vm.tags = vm.question.Question.Tags.split("><");
 	                vm.tags[0] = vm.tags[0].substr(1);
@@ -348,6 +352,23 @@
         	});
         }
         
+        function flagQuestion(questionToFlag) {
+        	if (!vm.originalLink) {
+        		logger.error("Require link to original question!");
+        		return;
+        	}
+        	
+        	questionToFlag.Duplicate = true;
+        	var originalLinkSegmetns = vm.originalLink.split("/");
+        	vm.originalId = originalLinkSegmetns[originalLinkSegmetns.length-1];
+        	
+        	return questionservice.editQuestion(questionToFlag, vm.originalId).then(function (data){
+        		logger.warning("You have flagged this question as duplicate!");
+        		vm.question.Question = data;
+        		return data;
+        	});
+        }
+        
         /*******************************************************
 		Navigation
         *******************************************************/
@@ -363,6 +384,14 @@
         function backToNormal() {
         	vm.normalView = true;
         	activate();
+        }
+        
+        function toggleFlag() {
+        	vm.isShowingOriginal = (vm.isShowingOriginal == true) ? false : true; 
+        }
+        
+        function gotoQuestion(id) {
+        	$state.transitionTo('questionDetail', {id: id});
         }
         
         /*******************************************************

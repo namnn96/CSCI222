@@ -20,6 +20,7 @@
         vm.logout = logout;
         
         // Function buttons
+        vm.postFeedback = postFeedback;
         vm.showForm = showForm;
         vm.showEditForm = showEditForm;
         vm.submitEdit = submitEdit;
@@ -50,18 +51,18 @@
         	else 
         		$state.get("admin").settings.nav = 3;
         	
-            var promises = [getPeople()];
+            var promises = [getAdmins()];
             return $q.all(promises).then(function() {
                 logger.info('Activated Dashboard View');
             });
         }
 
-        function getPeople() {
-            return dataservice.getPeople().then(function (data) {
-                vm.people = data;
-                return vm.people;
-            });
-        }
+        function getAdmins() {
+	    	return userservice.getAdmins(vm.adminSearch).then(function (data) {
+	    		vm.admins = data;
+	    		return vm.admins;
+	    	});
+	    }
         
         function login(email, password) {
         	return dataservice.login(email, password).then(function (data) {
@@ -102,6 +103,11 @@
         }
         
         function signup() {
+        	if (vm.newuser.email.indexOf("@") == -1) {
+        		logger.error("Invalid email!")
+        		return;
+        	}
+        	
         	return dataservice.signup(vm.newuser).then(function (data) {
         		vm.showsignin = true;
         		vm.showsignup = false;
@@ -138,6 +144,20 @@
         		
         		return data;
         	});
+        }
+        
+        function postFeedback() {
+        	if (vm.feedback.Body == undefined) {
+        		logger.error("Cannot leave an empty feedback!");
+        		return;
+        	}
+        	
+        	return dataservice.postFeedback(vm.feedback).then(function (data) {
+        		logger.info("Thank you for the feedback!")
+        		vm.feedback = undefined;
+        		return data;
+        	});
+        		
         }
     }
 })();
